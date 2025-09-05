@@ -202,62 +202,62 @@
   };
 
   const GAMES = [
-    { id:'madrecdotas', category:'Emancipación', title:'⚖️ ',
+    { id:'madrecdotas', category:'Emancipación', title:'Las Madrecdotas', emoji:'⚖️',
       summary:'Anécdotas del clan. Uri y Olga adivinan por separado.', type:'points',
       prep:'Caja con anécdotas impresas y autor indicado.',
       instructions:'El MC lee una anécdota. Uri y Olga dicen de quién es (sin hablar entre ellos). Asigna +1 local al que acierte.'
     },
-    { id:'cordon', category:'Emancipación', title:'🪢 ',
+    { id:'cordon', category:'Emancipación', title:'Cortar el cordón (doble Human Knot)', emoji:'🪢',
       summary:'Dos nudos humanos guiados: Uri vs Olga. Se decide ganador o empate.', type:'versus',
       prep:'Formar 2 grupos del mismo tamaño. Manos a personas no adyacentes.',
       instructions:'Sin soltarse, seguir a su guía para deshacer el nudo. Se valora rapidez/claridad/diversión. Resultado: Uri / Olga / Empate (suma al marcador global).'
     },
-    { id:'microbiotas', category:'Introducción de Olga al clan', title:'⚗️ ',
+    { id:'microbiotas', category:'Introducción de Olga al clan', title:'Banco de Microbiotas', emoji:'⚗️',
       summary:'A ciegas, tocar y adivinar contenidos. Risas y agua 💦.', type:'points',
       prep:'Tuppers opacos numerados; antifaces; toallitas; pistola(s) de agua.',
       instructions:'Con antifaz, tocan 30s el tupper. Describen y adivinan. Suma +1 local a quien acierte.'
     },
-    { id:'tiktok', category:'Introducción de Olga al clan', title:'🕺 ',
+    { id:'tiktok', category:'Introducción de Olga al clan', title:'Try Not to Laugh — TikTok (QR)', emoji:'🕺',
       summary:'Agua en la boca. Performances guiadas por vídeos.', type:'points',
       prep:'Playlist/QR, móvil/altavoz, vasos, cubo/toalla. Zonas de performers y aguas.',
       instructions:'Duelos: si alguien ríe/escupe primero, +1 local para el otro. Al final, el mayor gana 1 global; empate +1 a ambos.'
     },
-    { id:'cata', category:'Rutina en Barcelona', title:'Cata de bebidas (a ciegas)',
+    { id:'cata', category:'Rutina en Barcelona', title:'Cata de bebidas (a ciegas)', emoji:'🥤',
       summary:'Caja A–F. 5 bebidas normales + 1 picante (se añaden más).', type:'versus',
       prep:'Caja opaca con pajitas; surtido de bebidas; pajitas nuevas por turno.',
       instructions:'Por turnos eligen un agujero y beben. Normales siguen; picante elimina. Al final se declara Uri / Olga / Empate y suma al marcador global.'
     },
-    { id:'siameses', category:'Fusión en Uriga', title:'Mini‑retos a dos manos',
+    { id:'siameses', category:'Fusión en Uriga', title:'Mini‑retos a dos manos', emoji:'🤝',
       summary:'Tres tareas cooperativas con una mano cada uno. Sin sudaderas.', type:'ritual',
       prep:'Cinta para unir antebrazo/cintura; mesa; kits: hoja A4; pack de envoltorio (papel+celo máx 3+tijeras sin punta+objeto); globo+rotulador.',
       instructions:'(A) Avión que cruce línea/5m; (B) Envolver con máx. 3 trozos de celo; (C) Inflar, atar y dibujar cara en un globo. Reglas: una mano cada uno; sin dientes/rodillas. Al final, se les ata una mano y queda una libre cada uno. Sin puntos.'
     },
-    { id:'musical', category:'Fusión en Uriga', title:'🎤 ',
+    { id:'musical', category:'Fusión en Uriga', title:'Vivir en un musical — Escenas', emoji:'🎤',
       summary:'Impro musical de escenas del lore. Todo cantado.', type:'ritual',
       prep:'Lista de 5–8 escenas (sobres o QR); altavoz.',
       instructions:'Cada equipo saca escena al azar. 1 min de preparación + 60–90s de número musical. Humor cariñoso, sin nada gráfico. Sin puntos.'
     },
-    { id:'yincana', category:'UriGPT', title:'📸 ',
+    { id:'yincana', category:'UriGPT', title:'Yincana de fotos — Multiagente Edition', emoji:'📸',
       summary:'Fotos recreando roles de Uri con condiciones extra.', type:'versus',
       prep:'1 móvil por equipo. Tiempo total: 12–15 min.',
       instructions:'Cada foto muestra un rol (cocinero, motorista, terapeuta…). Todos salen y cumplen 1 condición (p.ej., nadie tocando el suelo, todos conectados, alguien escondido, cara exagerada). Se decide Uri / Olga / Empate y suma al global.'
     },
-    { id:'recogida', category:'Vida en el Palacete', title:'🙈 ',
+    { id:'recogida', category:'Vida en el Palacete', title:'Recogida a ciegas', emoji:'🙈',
       summary:'Campo con piezas y “minas” blandas. Un ciego por equipo.', type:'versus',
       prep:'Delimitar campo, piezas repartidas, obstáculos seguros, 2 antifaces.',
       instructions:'1 ciego por equipo entra al campo guiado por voz. +1 por pieza en base. Al final, Uri / Olga / Empate y suma al marcador global.'
     },
-    { id:'nofoto', category:'Vida en el Palacete', title:'No salgas en la foto (cucarachas)',
+    { id:'nofoto', category:'Vida en el Palacete', title:'No salgas en la foto (cucarachas)', emoji:'🪳',
       summary:'Fotógrafo a ciegas intenta “capturar cucarachas”.', type:'versus',
       prep:'Delimitar salón; móvil/cámara; desactivar flash/sonidos; antifaz.',
       instructions:'Ronda 2 min: el fotógrafo dispara guiado por ruidos/cebos. Se revisa galería: quien salga nítido eliminado. Resultado global: Uri / Olga / Empate y suma al global.'
     },
-    { id:'riego', category:'Vida en el Palacete', title:'💧 ',
+    { id:'riego', category:'Vida en el Palacete', title:'Riego Milagroso — Pasa el agua atrás', emoji:'💧',
       summary:'Cadena de agua sin mirar hasta llenar el tupper final.', type:'versus',
       prep:'Dos filas por equipos, botellas, recipientes individuales y tupper final (exterior o suelo antideslizante).',
       instructions:'El primero carga ~1/4 y vierte hacia atrás sin girarse. 2–3 min o hasta 500 ml. Uri / Olga / Empate y suma al global.'
     },
-    { id:'sprite', category:'Bonus Final', title:'Exorcismo de Maitreya',
+    { id:'sprite', category:'Bonus Final', title:'Exorcismo de Maitreya', emoji:'🫧',
       summary:'Sprite 330 ml. Aguantar sin eructar en duelos.', type:'points',
       prep:'Equipos igualados. Sprite fría en vasos iguales; toallas; 45–60s por ronda.',
       instructions:'Sale 1 por equipo y beben a la vez. Si alguien eructa, +1 local para el otro. Al final: mayor gana 1 global; empate +1 a ambos.'
@@ -316,7 +316,7 @@
       el.innerHTML = `
         <div class="meta-row"><span class="icon">${(CAT_ICON[g.category]||'🎲')}</span><span>${String(idx+1).padStart(2,'0')} · ${g.category}</span></div>
         <span class="title">${g.title}</span>
-        <p>${g.summary}</p>
+        
         ${completed ? `<div class="badge"><span class="check">✓</span>Completado</div>`:''}
       `;
       el.addEventListener('click', ()=>openDetail(g.id));
