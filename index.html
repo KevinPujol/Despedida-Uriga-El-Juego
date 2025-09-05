@@ -61,7 +61,7 @@
   .btn{border:none;border-radius:10px;padding:10px 14px;font-weight:700;cursor:pointer}
   .btn.primary{background:var(--primary);color:#fff}
   .btn.ghost{background:#fff;border:1px solid var(--border)}
-  .hint{font-size:12px;color:var(--muted)}
+  .hint{font-size:12px;color:#2f3b36}
   .divider{height:1px;background:var(--border);margin:12px 0}
   .counter{display:flex;align-items:center;gap:8px}
   .counter .score{min-width:28px;text-align:center;font-weight:800}
@@ -116,79 +116,69 @@
   </div>
 
 <script>
+(function(){
   // TIPOS:
-  // - points: muestra marcador local (Uri/Olga); al finalizar:
-  //           gana el mayor (+1 global) o empate (+1 a ambos)
-  // - versus: registra Uri/Olga/Empate pero NO suma al global
+  // - points: marcador local (Uri/Olga); al finalizar:
+  //           mayor gana +1 global; empate +1 global a ambos
+  // - versus: Uri/Olga/Empate y TAMBIÉN suma al global al guardar
   // - ritual: sin puntos; sólo marcar completado
+
   const GAMES = [
-    // 1 (POINTS)
     { id:'madrecdotas', category:'Emancipación', title:'Las Madrecdotas',
       summary:'Anécdotas del clan. Uri y Olga adivinan por separado.', type:'points',
       prep:'Caja con anécdotas impresas y autor indicado.',
       instructions:'El MC lee una anécdota. Uri y Olga dicen de quién es (sin hablar entre ellos). Asigna +1 local al que acierte.'
     },
-    // 2 (VERSUS)
     { id:'cordon', category:'Emancipación', title:'Cortar el cordón (doble Human Knot)',
       summary:'Dos nudos humanos guiados: Uri vs Olga. Se decide ganador o empate.', type:'versus',
       prep:'Formar 2 grupos del mismo tamaño. Manos a personas no adyacentes.',
-      instructions:'Sin soltarse, seguir a su guía para deshacer el nudo. Se valora rapidez/claridad/diversión. Resultado: Uri / Olga / Empate (no suma al marcador).'
+      instructions:'Sin soltarse, seguir a su guía para deshacer el nudo. Se valora rapidez/claridad/diversión. Resultado: Uri / Olga / Empate (suma al marcador global).'
     },
-    // 3 (POINTS)
     { id:'microbiotas', category:'Introducción de Olga al clan', title:'Banco de Microbiotas',
       summary:'A ciegas, tocar y adivinar contenidos. Risas y agua 💦.', type:'points',
       prep:'Tuppers opacos numerados; antifaces; toallitas; pistola(s) de agua.',
       instructions:'Con antifaz, tocan 30s el tupper. Describen y adivinan. Suma +1 local a quien acierte.'
     },
-    // 4 (POINTS)
     { id:'tiktok', category:'Introducción de Olga al clan', title:'Try Not to Laugh — TikTok (QR)',
       summary:'Agua en la boca. Performances guiadas por vídeos.', type:'points',
       prep:'Playlist/QR, móvil/altavoz, vasos, cubo/toalla. Zonas de performers y aguas.',
-      instructions:'Duelos: si alguien ríe/escupe primero, +1 local para el otro. Al final, el mayor gana 1 global o empate +1 global para ambos.'
+      instructions:'Duelos: si alguien ríe/escupe primero, +1 local para el otro. Al final, el mayor gana 1 global; empate +1 a ambos.'
     },
-    // 5 (VERSUS)
     { id:'cata', category:'Rutina en Barcelona', title:'Cata de bebidas (a ciegas)',
       summary:'Caja A–F. 5 bebidas normales + 1 picante (se añaden más).', type:'versus',
       prep:'Caja opaca con pajitas; surtido de bebidas; pajitas nuevas por turno.',
-      instructions:'Por turnos eligen un agujero y beben. Normales siguen; picante elimina. Al final se declara Uri / Olga / Empate (no suma al marcador).'
+      instructions:'Por turnos eligen un agujero y beben. Normales siguen; picante elimina. Al final se declara Uri / Olga / Empate y suma al marcador global.'
     },
-    // 6 (RITUAL) — renombrado
     { id:'siameses', category:'Fusión en Uriga', title:'Mini‑retos a dos manos',
       summary:'Tres tareas cooperativas con una mano cada uno. Sin sudaderas.', type:'ritual',
       prep:'Cinta para unir antebrazo/cintura; mesa; kits: hoja A4; pack de envoltorio (papel+celo máx 3+tijeras sin punta+objeto); globo+rotulador.',
       instructions:'(A) Avión que cruce línea/5m; (B) Envolver con máx. 3 trozos de celo; (C) Inflar, atar y dibujar cara en un globo. Reglas: una mano cada uno; sin dientes/rodillas. Al final, se les ata una mano y queda una libre cada uno. Sin puntos.'
     },
-    // 7 (RITUAL)
     { id:'musical', category:'Fusión en Uriga', title:'Vivir en un musical — Escenas',
       summary:'Impro musical de escenas del lore. Todo cantado.', type:'ritual',
       prep:'Lista de 5–8 escenas (sobres o QR); altavoz.',
       instructions:'Cada equipo saca escena al azar. 1 min de preparación + 60–90s de número musical. Humor cariñoso, sin nada gráfico. Sin puntos.'
     },
-    // 8 (VERSUS)
     { id:'yincana', category:'UriGPT', title:'Yincana de fotos — Multiagente Edition',
       summary:'Fotos recreando roles de Uri con condiciones extra.', type:'versus',
       prep:'1 móvil por equipo. Tiempo total: 12–15 min.',
-      instructions:'Cada foto muestra un rol (cocinero, motorista, terapeuta…). Todos salen y cumplen 1 condición (p.ej., nadie tocando el suelo, todos conectados, alguien escondido, cara exagerada). Se decide Uri / Olga / Empate (no suma al marcador).'
+      instructions:'Cada foto muestra un rol (cocinero, motorista, terapeuta…). Todos salen y cumplen 1 condición (p.ej., nadie tocando el suelo, todos conectados, alguien escondido, cara exagerada). Se decide Uri / Olga / Empate y suma al global.'
     },
-    // 9 (VERSUS)
     { id:'recogida', category:'Vida en el Palacete', title:'Recogida a ciegas',
       summary:'Campo con piezas y “minas” blandas. Un ciego por equipo.', type:'versus',
       prep:'Delimitar campo, piezas repartidas, obstáculos seguros, 2 antifaces.',
-      instructions:'1 ciego por equipo entra al campo guiado por voz. +1 por pieza en base. Al final, se declara Uri / Olga / Empate (no suma al marcador).'
+      instructions:'1 ciego por equipo entra al campo guiado por voz. +1 por pieza en base. Al final, Uri / Olga / Empate y suma al marcador global.'
     },
-    // 10 (VERSUS)
     { id:'nofoto', category:'Vida en el Palacete', title:'No salgas en la foto (cucarachas)',
       summary:'Fotógrafo a ciegas intenta “capturar cucarachas”.', type:'versus',
       prep:'Delimitar salón; móvil/cámara; desactivar flash/sonidos; antifaz.',
-      instructions:'Ronda 2 min: el fotógrafo dispara guiado por ruidos/cebos. Se revisa galería: quien salga nítido eliminado. Resultado global: Uri / Olga / Empate (no suma al marcador).'
+      instructions:'Ronda 2 min: el fotógrafo dispara guiado por ruidos/cebos. Se revisa galería: quien salga nítido eliminado. Resultado global: Uri / Olga / Empate y suma al global.'
     },
-    // 11 (VERSUS)
     { id:'riego', category:'Vida en el Palacete', title:'Riego Milagroso — Pasa el agua atrás',
       summary:'Cadena de agua sin mirar hasta llenar el tupper final.', type:'versus',
       prep:'Dos filas por equipos, botellas, recipientes individuales y tupper final (exterior o suelo antideslizante).',
-      instructions:'El primero carga ~1/4 y vierte hacia atrás sin girarse. 2–3 min o hasta 500 ml. Se declara Uri / Olga / Empate (no suma al marcador).'
+      instructions:'El primero carga ~1/4 y vierte hacia atrás sin girarse. 2–3 min o hasta 500 ml. Uri / Olga / Empate y suma al global.'
     },
-    // 12 (POINTS) — BONUS FINAL
     { id:'sprite', category:'Bonus Final', title:'Exorcismo de Maitreya',
       summary:'Sprite 330 ml. Aguantar sin eructar en duelos.', type:'points',
       prep:'Equipos igualados. Sprite fría en vasos iguales; toallas; 45–60s por ronda.',
@@ -196,8 +186,8 @@
     }
   ];
 
-  // --- util persistencia simple ---
-  const SKEY = 'oo_scores_v4'; // mantenemos versión
+  // --- Persistencia ---
+  const SKEY = 'oo_scores_v5'; // nueva versión
   const DONE_KEY = (id)=>`game_done_${id}`;
   const RESULT_KEY = (id)=>`game_result_${id}`; // 'URI'|'OLGA'|'DRAW'|'DONE'
   const PLOCAL_KEY = (id)=>`game_local_${id}`;  // guarda {u:?, o:?} para type points
@@ -222,7 +212,7 @@
   }
   renderScores();
 
-  // Construir tiles (sin controles dentro)
+  // Tiles
   const tiles = $('#tiles');
   function renderTiles(){
     tiles.innerHTML = '';
@@ -250,7 +240,7 @@
     renderScores();
   });
 
-  // Helpers locale
+  // Helpers marcador local
   function loadLocal(id){
     try{
       const obj = JSON.parse(localStorage.getItem(PLOCAL_KEY(id)) || '{"u":0,"o":0}');
@@ -261,7 +251,7 @@
     localStorage.setItem(PLOCAL_KEY(id), JSON.stringify({u,o}));
   }
 
-  // --- Modal detalle ---
+  // Modal
   const backdrop = $('#backdrop');
   const closeBtn = $('#closeDetail');
   closeBtn.addEventListener('click', closeDetail);
@@ -284,7 +274,6 @@
     if(g.type==='points'){
       hint.textContent = 'Marcador local: el que tenga más gana 1 global; si empatan, +1 global a ambos.';
 
-      // local scores UI
       const {u, o} = loadLocal(g.id);
       const wrap = document.createElement('div');
       wrap.className = 'controls';
@@ -310,8 +299,6 @@
         $('#oScore').textContent = newO;
         saveLocal(g.id, newU, newO);
       }
-
-      // disable controls if already finalized
       function setDisabled(dis){
         ['uMinus','uPlus','oMinus','oPlus','resetLocal','finalize'].forEach(idBtn=>{
           const b = sc.querySelector('#'+idBtn);
@@ -320,20 +307,11 @@
       }
       if(prev) setDisabled(true);
 
-      sc.querySelector('#uPlus').onclick = ()=> setLocal(loadLocal(g.id).u + 1, loadLocal(g.id).o);
-      sc.querySelector('#uMinus').onclick = ()=> {
-        const cur = loadLocal(g.id);
-        setLocal(Math.max(0, cur.u - 1), cur.o);
-      };
-      sc.querySelector('#oPlus').onclick = ()=> setLocal(loadLocal(g.id).u, loadLocal(g.id).o + 1);
-      sc.querySelector('#oMinus').onclick = ()=> {
-        const cur = loadLocal(g.id);
-        setLocal(cur.u, Math.max(0, cur.o - 1));
-      };
-      sc.querySelector('#resetLocal').onclick = ()=>{
-        if(!confirm('¿Resetear el marcador local de este juego?')) return;
-        setLocal(0,0);
-      };
+      sc.querySelector('#uPlus').onclick = ()=> { const cur=loadLocal(g.id); setLocal(cur.u+1, cur.o); };
+      sc.querySelector('#uMinus').onclick = ()=> { const cur=loadLocal(g.id); setLocal(Math.max(0,cur.u-1), cur.o); };
+      sc.querySelector('#oPlus').onclick = ()=> { const cur=loadLocal(g.id); setLocal(cur.u, cur.o+1); };
+      sc.querySelector('#oMinus').onclick = ()=> { const cur=loadLocal(g.id); setLocal(cur.u, Math.max(0,cur.o-1)); };
+      sc.querySelector('#resetLocal').onclick = ()=>{ if(confirm('¿Resetear el marcador local de este juego?')) setLocal(0,0); };
 
       sc.querySelector('#finalize').onclick = ()=>{
         if(prev){ alert('Este juego ya está cerrado.'); return; }
@@ -342,7 +320,6 @@
         if(cur.u > cur.o) outcome = 'URI';
         else if(cur.o > cur.u) outcome = 'OLGA';
 
-        // sumar global según outcome
         const s = loadScores();
         if(outcome==='URI') s.uri += 1;
         else if(outcome==='OLGA') s.olga += 1;
@@ -366,14 +343,13 @@
         saveScores(s); renderScores();
         localStorage.removeItem(RESULT_KEY(g.id));
         localStorage.removeItem(DONE_KEY(g.id));
-        // dejamos los contadores locales como estaban para poder editar
         setDisabled(false);
         renderTiles();
-        openDetail(g.id); // refrescar vista
+        openDetail(g.id);
       };
 
     } else if(g.type==='versus'){
-      hint.textContent = 'Este juego NO suma al marcador global. Guarda solo el resultado.';
+      hint.textContent = 'Este juego SÍ suma al marcador global al guardar.';
 
       const wrap = document.createElement('div');
       wrap.className = 'controls';
@@ -395,15 +371,27 @@
         const sel = sc.querySelector('input[name="winner"]:checked');
         if(!sel){ alert('Selecciona un resultado.'); return; }
         const val = sel.value;
+        if(!prev){
+          const s = loadScores();
+          if(val==='URI') s.uri += 1;
+          else if(val==='OLGA') s.olga += 1;
+          else if(val==='DRAW'){ s.uri += 1; s.olga += 1; }
+          saveScores(s); renderScores();
+        }
         localStorage.setItem(RESULT_KEY(g.id), val);
         localStorage.setItem(DONE_KEY(g.id), '1');
         renderTiles();
-        alert('Resultado guardado.');
+        alert('Resultado guardado (se ha sumado al marcador global).');
       };
 
       sc.querySelector('#clearResult').onclick = ()=>{
         if(!prev){ alert('Este juego no tenía resultado.'); return; }
-        if(!confirm('¿Quitar resultado?')) return;
+        if(!confirm('¿Quitar resultado y ajustar marcador global?')) return;
+        const s = loadScores();
+        if(prev==='URI' && s.uri>0) s.uri -= 1;
+        else if(prev==='OLGA' && s.olga>0) s.olga -= 1;
+        else if(prev==='DRAW'){ if(s.uri>0) s.uri -= 1; if(s.olga>0) s.olga -= 1; }
+        saveScores(s); renderScores();
         localStorage.removeItem(RESULT_KEY(g.id));
         localStorage.removeItem(DONE_KEY(g.id));
         renderTiles();
@@ -434,10 +422,12 @@
     backdrop.style.display = 'flex';
     backdrop.setAttribute('aria-hidden','false');
   }
+
   function closeDetail(){
     backdrop.style.display = 'none';
     backdrop.setAttribute('aria-hidden','true');
   }
+})();
 </script>
 </body>
 </html>
