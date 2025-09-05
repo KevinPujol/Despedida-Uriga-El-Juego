@@ -114,84 +114,87 @@
   </div>
 
 <script>
-  // --- Datos de juegos (siguiendo orden de la Narración, sintetizado) ---
+  // TIPOS:
+  // - points: suma al marcador global; empate suma +1 a ambos
+  // - versus: registra Uri/Olga/Empate pero NO suma al global
+  // - ritual: sin puntos; sólo marcar completado
   const GAMES = [
-    // 1
+    // 1 (POINTS)
     { id:'madrecdotas', category:'Emancipación', title:'Las Madrecdotas',
-      summary:'Anécdotas del clan. Uri y Olga adivinan por separado.', type:'duel',
-      prep:'Caja con anécdotas impresas y autor indicado. Marcador listo.',
-      instructions:'El MC lee una anécdota. Uri y Olga dicen de quién es (sin hablar entre ellos). +1 punto si aciertan. Recuento al final.'
+      summary:'Anécdotas del clan. Uri y Olga adivinan por separado.', type:'points',
+      prep:'Caja con anécdotas impresas y autor indicado.',
+      instructions:'El MC lee una anécdota. Uri y Olga dicen de quién es (sin hablar entre ellos). +1 al que acierte; si ambos aciertan, +1 a ambos.'
     },
-    // 2
+    // 2 (VERSUS)
     { id:'cordon', category:'Emancipación', title:'Cortar el cordón (doble Human Knot)',
-      summary:'Dos nudos humanos guiados: Uri vs Olga. Gana quien lidere mejor.', type:'duel',
-      prep:'Formar 2 grupos del mismo tamaño. Todos se dan mano derecha a no adyacente y luego izquierda a otra persona.',
-      instructions:'Sin soltarse, seguir a su guía para deshacer el nudo (pasar por debajo/encima, girar en bloque). Se valora rapidez/claridad/diversión. Uri u Olga ganan; puede haber empate.'
+      summary:'Dos nudos humanos guiados: Uri vs Olga. Se decide ganador o empate.', type:'versus',
+      prep:'Formar 2 grupos del mismo tamaño. Manos a personas no adyacentes.',
+      instructions:'Sin soltarse, seguir a su guía para deshacer el nudo. Se valora rapidez/claridad/diversión. Resultado: Uri / Olga / Empate (no suma al marcador).'
     },
-    // 3
+    // 3 (POINTS)
     { id:'microbiotas', category:'Introducción de Olga al clan', title:'Banco de Microbiotas',
-      summary:'A ciegas, tocar y adivinar contenidos. Risas y agua 💦.', type:'duel',
+      summary:'A ciegas, tocar y adivinar contenidos. Risas y agua 💦.', type:'points',
       prep:'Tuppers opacos numerados; antifaces; toallitas; pistola(s) de agua.',
-      instructions:'Con antifaz, tocan 30s el tupper anunciado. Describen y adivinan. Si fallan, agua del autor 💦. +1 para quien acierte más.'
+      instructions:'Con antifaz, tocan 30s el tupper. Describen y adivinan. +1 a quien acierte; si los dos aciertan, +1 a ambos.'
     },
-    // 4
+    // 4 (POINTS)
     { id:'tiktok', category:'Introducción de Olga al clan', title:'Try Not to Laugh — TikTok (QR)',
-      summary:'Agua en la boca. Escenas guiadas por vídeos aleatorios.', type:'teams',
-      prep:'Playlist/QR, móvil/altavoz, vasos, cubo/toalla. Zona performers y zona “aguas”.',
-      instructions:'1 jugador de cada equipo con agua en la boca. Se reproduce un clip y el resto intenta provocar risa sin tocar. Quien ríe/escupe primero entrega punto al otro equipo. No suma al marcador global.'
+      summary:'Agua en la boca. Performances guiadas por vídeos.', type:'points',
+      prep:'Playlist/QR, móvil/altavoz, vasos, cubo/toalla. Zonas de performers y aguas.',
+      instructions:'Duelos: si uno ríe/escupe primero, punto para el otro. En total, gana quien más puntos acumule; empate suma +1 a ambos.'
     },
-    // 5
+    // 5 (VERSUS)
     { id:'cata', category:'Rutina en Barcelona', title:'Cata de bebidas (a ciegas)',
-      summary:'Caja con 6 agujeros. 5 bebidas normales + 1 picante (y se añaden más).', type:'teams',
-      prep:'Caja opaca A–F con pajitas; surtido de bebidas; pajitas nuevas por turno.',
-      instructions:'Por turnos eligen un agujero y beben. Si es normal, sigue y se añade una picante nueva; si es picante, eliminado. Rondas hasta que un equipo se quede sin jugadores o acabe el tiempo. Seguridad: picantes suaves y sin alérgenos.'
+      summary:'Caja A–F. 5 bebidas normales + 1 picante (se añaden más).', type:'versus',
+      prep:'Caja opaca con pajitas; surtido de bebidas; pajitas nuevas por turno.',
+      instructions:'Por turnos eligen un agujero y beben. Normales siguen; picante elimina. Al final se declara Uri / Olga / Empate (no suma al marcador).'
     },
-    // 6
-    { id:'siameses', category:'Fusión en Uriga', title:'Camiseta siamesa — Mini‑retos a dos manos',
-      summary:'Tres tareas cooperativas usando una mano cada uno. Sin sudaderas.', type:'teams',
-      prep:'Cinta para unir a la altura del antebrazo/cintura (nada de sudaderas), mesa, kits: hoja A4; pack de envoltorio (papel+celo máx 3+tijeras sin punta+objeto); globo+rotulador.',
-      instructions:'Objetivo: completar 3 retos: (A) avión que cruce línea/5m; (B) envolver objeto con máx. 3 trozos de celo; (C) inflar, atar y dibujar cara en un globo. Reglas: una mano cada uno, sin dientes ni rodillas. Al final, se les ata una mano a cada uno: terminarán con **una mano atada y otra libre cada uno**.'
+    // 6 (RITUAL) — renombrado
+    { id:'siameses', category:'Fusión en Uriga', title:'Mini‑retos a dos manos',
+      summary:'Tres tareas cooperativas con una mano cada uno. Sin sudaderas.', type:'ritual',
+      prep:'Cinta para unir antebrazo/cintura; mesa; kits: hoja A4; pack de envoltorio (papel+celo máx 3+tijeras sin punta+objeto); globo+rotulador.',
+      instructions:'(A) Avión que cruce línea/5m; (B) Envolver con máx. 3 trozos de celo; (C) Inflar, atar y dibujar cara en un globo. Reglas: una mano cada uno; sin dientes/rodillas. Al final, se les ata una mano y queda una libre cada uno. Sin puntos.'
     },
-    // 7
+    // 7 (RITUAL)
     { id:'musical', category:'Fusión en Uriga', title:'Vivir en un musical — Escenas',
-      summary:'Impro musical de escenas del lore. Todo cantado.', type:'teams',
+      summary:'Impro musical de escenas del lore. Todo cantado.', type:'ritual',
       prep:'Lista de 5–8 escenas (sobres o QR); altavoz.',
-      instructions:'Cada equipo saca escena al azar. 1 min de preparación y 60–90s de número musical improvisado. Humor cariñoso, sin nada gráfico. No suma marcador global.'
+      instructions:'Cada equipo saca escena al azar. 1 min de preparación + 60–90s de número musical. Humor cariñoso, sin nada gráfico. Sin puntos.'
     },
-    // 8
+    // 8 (VERSUS)
     { id:'yincana', category:'UriGPT', title:'Yincana de fotos — Multiagente Edition',
-      summary:'Fotos recreando roles de Uri con condiciones extra.', type:'teams',
+      summary:'Fotos recreando roles de Uri con condiciones extra.', type:'versus',
       prep:'1 móvil por equipo. Tiempo total: 12–15 min.',
-      instructions:'Cada foto debe mostrar un rol de Uri (cocinero, motorista, terapeuta…). Todos aparecen en la escena y se cumple al menos 1 condición (p.ej., alguien escondido, nadie tocando el suelo, todos conectados, cara exagerada). Creatividad y humor.'
+      instructions:'Cada foto muestra un rol (cocinero, motorista, terapeuta…). Todos salen y cumplen 1 condición (p.ej., nadie tocando el suelo, todos conectados, alguien escondido, cara exagerada). Se decide Uri / Olga / Empate (no suma al marcador).'
     },
-    // 9
+    // 9 (VERSUS)
     { id:'recogida', category:'Vida en el Palacete', title:'Recogida a ciegas',
-      summary:'Campo con piezas y “minas” blandas. Un ciego por equipo.', type:'teams',
+      summary:'Campo con piezas y “minas” blandas. Un ciego por equipo.', type:'versus',
       prep:'Delimitar campo, piezas repartidas, obstáculos seguros, 2 antifaces.',
-      instructions:'1 ciego por equipo entra al campo y sigue solo instrucciones por voz. Lleva 1 pieza a la base cada vez. Si toca mina, suelta y regresa a zona segura. Rondas de 2–3 min con rotación. +1 por pieza en base. Gana quien más acumule. No suma marcador global.'
+      instructions:'1 ciego por equipo entra al campo guiado por voz. +1 por pieza en base. Al final, se declara Uri / Olga / Empate (no suma al marcador).'
     },
-    // 10
+    // 10 (VERSUS)
     { id:'nofoto', category:'Vida en el Palacete', title:'No salgas en la foto (cucarachas)',
-      summary:'Fotógrafo a ciegas intenta “capturar cucarachas”.', type:'teams',
-      prep:'Delimitar salón; móvil/cámara; desactivar flash/sonidos si queréis; antifaz.',
-      instructions:'Ronda de 2 min: el fotógrafo a ciegas dispara guiado por ruidos/cebos. El resto se oculta (sin armarios cerrados) y puede confundir con sonidos. Quien salga nítido queda eliminado. Privacidad: no publicar sin permiso.'
+      summary:'Fotógrafo a ciegas intenta “capturar cucarachas”.', type:'versus',
+      prep:'Delimitar salón; móvil/cámara; desactivar flash/sonidos; antifaz.',
+      instructions:'Ronda 2 min: el fotógrafo dispara guiado por ruidos/cebos. Se revisa galería: quien salga nítido eliminado. Resultado global: Uri / Olga / Empate (no suma al marcador).'
     },
-    // 11
+    // 11 (VERSUS)
     { id:'riego', category:'Vida en el Palacete', title:'Riego Milagroso — Pasa el agua atrás',
-      summary:'Cadena de agua sin mirar hasta llenar el tupper final.', type:'teams',
-      prep:'Dos filas por equipos, botellas, recipientes individuales y tupper final. Exterior o suelo antideslizante.',
-      instructions:'El primero carga ~1/4 de su tupper y vierte hacia atrás sobre la cabeza del siguiente (sin girarse). Continúa hasta el último, que vacía en el tupper final. 2–3 min o hasta 500 ml. Gana mayor volumen. Seguridad: sin vidrio; móviles lejos.'
+      summary:'Cadena de agua sin mirar hasta llenar el tupper final.', type:'versus',
+      prep:'Dos filas por equipos, botellas, recipientes individuales y tupper final (exterior o suelo antideslizante).',
+      instructions:'El primero carga ~1/4 y vierte hacia atrás sin girarse. 2–3 min o hasta 500 ml. Se declara Uri / Olga / Empate (no suma al marcador).'
     },
-    // 12 (BONUS FINAL)
+    // 12 (POINTS) — BONUS FINAL
     { id:'sprite', category:'Bonus Final', title:'Exorcismo de Maitreya',
-      summary:'Sprite 330 ml. Aguantar sin eructar en duelos por equipos.', type:'teams',
-      prep:'Divide en 2 equipos. Sprite fría en vasos iguales; toallas; definir 45–60s por ronda.',
-      instructions:'Sale 1 jugador por equipo y beben a la vez. Si alguien eructa, pierde la ronda. Si ambos aguantan, sorbo extra + 30s (muerte súbita). Gana el equipo con más rondas. Opción sin gas para quien no participe.'
+      summary:'Sprite 330 ml. Aguantar sin eructar en duelos.', type:'points',
+      prep:'Equipos igualados. Sprite fría en vasos iguales; toallas; 45–60s por ronda.',
+      instructions:'Sale 1 por equipo y beben a la vez. Si alguien eructa, punto para el otro. Empate de ronda suma +1 a ambos.'
     }
   ];
 
   // --- util persistencia simple ---
-  const SKEY = 'oo_scores_v3';
+  const SKEY = 'oo_scores_v4'; // nueva versión por cambio de reglas
   const DONE_KEY = (id)=>`game_done_${id}`;
   const RESULT_KEY = (id)=>`game_result_${id}`;
 
@@ -257,15 +260,17 @@
     $('#detailPrep').textContent = g.prep;
     $('#detailInstr').textContent = g.instructions;
 
-    // Scoring controls per type
     const sc = $('#scoringControls');
     const hint = $('#scoringHint');
     sc.innerHTML = '';
     const done = !!localStorage.getItem(DONE_KEY(g.id));
-    const prev = localStorage.getItem(RESULT_KEY(g.id)); // 'URI'|'OLGA'|'DRAW' for duel, 'DONE' for teams
+    const prev = localStorage.getItem(RESULT_KEY(g.id)); // 'URI'|'OLGA'|'DRAW' or 'DONE'
 
-    if(g.type==='duel'){
-      hint.textContent = 'El punto global se suma al guardar (empate no suma).';
+    if(g.type==='points' || g.type==='versus'){
+      hint.textContent = g.type==='points'
+        ? 'Este juego SÍ suma al marcador global. Empate: +1 a ambos.'
+        : 'Este juego NO suma al marcador global. Guarda solo el resultado.';
+
       const wrap = document.createElement('div');
       wrap.className = 'controls';
       wrap.innerHTML = `
@@ -286,11 +291,12 @@
         const sel = sc.querySelector('input[name="winner"]:checked');
         if(!sel){ alert('Selecciona un resultado.'); return; }
         const val = sel.value;
-        // sumar solo si no existía antes
-        if(!prev){
+
+        if(g.type==='points' && !prev){
           const s = loadScores();
           if(val==='URI') s.uri += 1;
           else if(val==='OLGA') s.olga += 1;
+          else if(val==='DRAW'){ s.uri += 1; s.olga += 1; }
           saveScores(s); renderScores();
         }
         localStorage.setItem(RESULT_KEY(g.id), val);
@@ -298,20 +304,25 @@
         renderTiles();
         alert('Resultado guardado.');
       };
+
       sc.querySelector('#clearResult').onclick = ()=>{
         if(!prev){ alert('Este juego no tenía resultado.'); return; }
-        if(!confirm('¿Quitar resultado y ajustar marcador?')) return;
-        const s = loadScores();
-        if(prev==='URI' && s.uri>0) s.uri -= 1;
-        if(prev==='OLGA' && s.olga>0) s.olga -= 1;
-        saveScores(s); renderScores();
+        if(!confirm('¿Quitar resultado y (si aplica) ajustar marcador?')) return;
+        if(g.type==='points'){
+          const s = loadScores();
+          if(prev==='URI' && s.uri>0) s.uri -= 1;
+          else if(prev==='OLGA' && s.olga>0) s.olga -= 1;
+          else if(prev==='DRAW'){ if(s.uri>0) s.uri -= 1; if(s.olga>0) s.olga -= 1; }
+          saveScores(s); renderScores();
+        }
         localStorage.removeItem(RESULT_KEY(g.id));
         localStorage.removeItem(DONE_KEY(g.id));
         renderTiles();
-        openDetail(id); // recargar vista limpia
+        openDetail(id);
       };
-    }else{
-      hint.textContent = 'Juego por equipos: marcar completado (no suma al marcador global).';
+
+    } else if(g.type==='ritual'){
+      hint.textContent = 'Ritual sin puntos.';
       const wrap = document.createElement('div');
       wrap.className = 'controls';
       wrap.innerHTML = `
