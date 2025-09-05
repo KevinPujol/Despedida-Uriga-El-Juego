@@ -1,383 +1,217 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Uriga — Marcador en vivo</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Olga & Oriol — Juegos</title>
 <style>
-:root{
-  --ink:#141a29; --accent:#10b981; --muted:#6b7280; --paper:#fff; --rule:#e5e7eb; --bg:#f6f7fb;
-  --sans: system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
-  --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-}
-*{box-sizing:border-box}
-html,body{margin:0; padding:0; background:var(--bg); color:var(--ink); font-family:var(--sans)}
-a{color:inherit}
-/* Header */
-.header{position:sticky; top:0; z-index:50; background:rgba(255,255,255,.9); backdrop-filter:saturate(180%) blur(8px);
-  border-bottom:1px solid var(--rule);}
-.header .inner{max-width:1080px; margin:0 auto; padding:12px 16px; display:flex; align-items:center; justify-content:space-between; gap:12px}
-.logo{height:44px; width:auto; display:block}
-.brand{display:flex; align-items:center; gap:10px}
-.brand small{color:var(--muted)}
-.pills{display:flex; align-items:center; gap:10px}
-.pill{display:flex; align-items:center; gap:8px; padding:6px 10px; border:1px solid #bbf7d0; background:#ecfdf5; color:#047857; border-radius:999px; font-weight:600}
-.pill .val{font-variant-numeric: tabular-nums; font-size:16px}
-.reset{font-size:12px; padding:6px 10px; border-radius:999px; border:1px solid var(--rule); background:#fff}
-.reset:hover{background:#f8fafc}
+  :root{
+    --bg:#f6f4f2;
+    --card:#ffffff;
+    --muted:#6c7a72;
+    --primary:#3d604e;
+    --pill:#e6efe9;
+    --success-bg:#e8f7ec;
+    --success:#1c7c3a;
+    --border:#e7e3dd;
+    --shadow: 0 6px 16px rgba(0,0,0,.06);
+    --radius:14px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--bg);color:#2a2a2a;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif}
+  .wrap{max-width:720px;margin:0 auto;padding:20px 16px 28px}
 
-/* Main */
-.main{max-width:1080px; margin:0 auto; padding:20px 16px}
-.section-title{font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); margin:6px 0 10px}
-.grid{display:grid; grid-template-columns: repeat(1,minmax(0,1fr)); gap:12px}
-@media(min-width:640px){ .grid{grid-template-columns: repeat(2,minmax(0,1fr));} }
-@media(min-width:960px){ .grid{grid-template-columns: repeat(3,minmax(0,1fr));} }
-.tile{padding:16px; border:1px solid var(--rule); border-radius:14px; background:#fff; text-align:left; cursor:pointer; transition: box-shadow .15s ease}
-.tile:hover{box-shadow:0 6px 18px rgba(20,26,41,.06)}
-.tile .phase{font-size:12px; color:var(--muted); margin-bottom:4px}
-.tile .title{font-weight:700}
-.tile .sum{font-size:14px; color:#334155; margin-top:8px}
-.tile.done{border-color:#a7f3d0; background:#ecfdf5}
-.tile .done-badge{margin-top:8px; display:inline-flex; align-items:center; gap:6px; color:#047857; font-size:12px; font-weight:600}
+  /* Header */
+  header{display:flex;flex-direction:column;align-items:center;gap:12px;margin-top:4px;margin-bottom:18px}
+  .logo{height:52px; width:auto; display:block}
+  .scorebar{display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap}
+  .pill{background:var(--pill); color:var(--primary); padding:8px 14px; border-radius:999px; font-weight:700; letter-spacing:.3px}
+  .btn-reset{border:none;background:#fff;border:1px solid var(--border);padding:8px 14px;border-radius:999px;cursor:pointer}
+  .btn-reset:hover{filter:brightness(.98)}
 
-/* Modal */
-.modal{position:fixed; inset:0; background:rgba(0,0,0,.45); display:flex; align-items:flex-end; justify-content:center; padding:8px}
-@media(min-width:640px){ .modal{align-items:center} }
-.sheet{width:100%; max-width:760px; background:#fff; border-radius:16px; border:1px solid var(--rule); box-shadow:0 20px 50px rgba(20,26,41,.15);
-  padding:16px 16px 18px}
-.sheet header{display:flex; align-items:flex-start; justify-content:space-between; gap:10px}
-.sheet .game-phase{font-size:12px; color:var(--muted)}
-.sheet h3{margin:2px 0 0; font-size:20px}
-.close{color:#475569; background:transparent; border:0; font-size:18px; cursor:pointer}
-.meta{margin-top:10px; display:grid; grid-template-columns:1fr; gap:10px}
-@media(min-width:720px){ .meta{grid-template-columns:repeat(3,minmax(0,1fr))} }
-.card{border:1px solid var(--rule); border-radius:12px; padding:10px; background:#fff}
-.card .lab{font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.12em}
-.card .val{margin-top:4px; font-size:14px; color:#111827}
-.summary{margin-top:8px; font-size:14px; color:#374151}
-/* Timer */
-.timer-area{margin-top:12px; display:flex; align-items:center; gap:10px; flex-wrap:wrap}
-.timer{font-family:var(--mono); padding:8px 10px; background:#f1f5f9; border-radius:8px; border:1px solid var(--rule); min-width:80px; text-align:center}
-.btn{padding:8px 12px; border-radius:8px; border:1px solid var(--rule); background:#fff; cursor:pointer; font-size:14px}
-.btn-acc{background:var(--accent); color:#fff; border-color:var(--accent)}
-.btn:hover{background:#f8fafc}
-.btn-acc:hover{filter:brightness(0.95)}
-/* Counters */
-.counters{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:10px}
-.counter{border:1px solid var(--rule); border-radius:12px; padding:10px; background:#fff}
-.counter .lab{font-size:12px; color:var(--muted); margin-bottom:4px}
-.counter .row{display:flex; align-items:center; justify-content:space-between; gap:10px}
-.counter .val{font-size:24px; font-weight:700; font-variant-numeric:tabular-nums}
-.counter .op{width:36px; height:32px}
-/* Outcome */
-.outcome{margin-top:12px; border-top:1px solid var(--rule); padding-top:12px}
-.outcome .lab{font-size:12px; color:var(--muted); margin-bottom:6px}
-.out-btns{display:flex; flex-wrap:wrap; gap:8px}
-.out-btns .opt{padding:8px 12px; border-radius:10px; border:1px solid #a7f3d0; color:#065f46; background:#ecfdf5; font-size:14px; cursor:pointer}
-.out-btns .opt.alt{border-color:var(--rule); color:#334155; background:#fff}
-.out-done{margin-top:8px; display:flex; align-items:center; gap:10px; color:#065f46; font-weight:600; font-size:14px}
-.undo{font-size:12px; padding:6px 10px; border-radius:8px; border:1px solid var(--rule); background:#fff}
-/* Footer */
-footer{border-top:1px solid var(--rule); margin-top:24px}
-footer .inner{max-width:1080px; margin:0 auto; padding:16px; color:#475569; display:flex; align-items:center; justify-content:space-between; font-size:14px}
+  /* Section */
+  h2.section{font-size:14px; text-transform:uppercase; letter-spacing:.12em; color:var(--muted); margin:22px 4px 10px}
+
+  /* Card */
+  .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px 16px;margin:14px 0}
+  .card.success{background:var(--success-bg); border-color:#cfead7}
+  .card h3{margin:0 0 6px; font-size:14px; color:var(--muted)}
+  .card a.title{display:inline-block; font-weight:800; color:#2e4b3d; text-decoration:none; margin-bottom:6px}
+  .card p{margin:8px 0 12px; line-height:1.35}
+  .status{display:flex; align-items:center; gap:8px; color:var(--success); font-weight:700}
+  .check{width:18px;height:18px;border-radius:4px;border:2px solid var(--success);display:inline-flex;align-items:center;justify-content:center;font-size:14px}
+
+  /* Duel controls */
+  .duel{display:flex;flex-direction:column;gap:10px;margin-top:8px}
+  .choices{display:flex;gap:10px;flex-wrap:wrap}
+  .choice{border:1px solid var(--border); border-radius:10px; padding:10px 12px; background:#fff; display:flex; align-items:center; gap:8px; cursor:pointer}
+  .choice input{accent-color:var(--primary)}
+  .actions{display:flex; gap:10px; flex-wrap:wrap}
+  .btn{border:none;border-radius:10px;padding:10px 14px;font-weight:700;cursor:pointer}
+  .btn.primary{background:var(--primary);color:#fff}
+  .btn.ghost{background:#fff;border:1px solid var(--border)}
+  .hint{font-size:12px;color:var(--muted)}
+
+  /* Footer */
+  footer{margin-top:24px;text-align:center;color:var(--muted)}
 </style>
 </head>
 <body>
-<header class="header">
-  <div class="inner">
-    <div class="brand">
-      <img src="logo.png" alt="URIGA" class="logo">
-      <small>Marcador en vivo</small>
-    </div>
-    <div class="pills">
-      <div class="pill"><span>URI</span><span class="val" id="score-uri">0</span></div>
-      <div class="pill"><span>OLGA</span><span class="val" id="score-olga">0</span></div>
-      <button class="reset" id="resetAll">Reset</button>
-    </div>
-  </div>
-</header>
-
-<main class="main">
-  <div class="section-title">Juegos</div>
-  <div class="grid" id="tiles"></div>
-</main>
-
-<footer>
-  <div class="inner">
-    <div>Hecho con <span style="color:#e11d48">❤</span> para Olga &amp; Oriol</div>
-    <div style="font-size:12px; color:#94a3b8">v1.0</div>
-  </div>
-</footer>
-
-<!-- Modal -->
-<div class="modal" id="modal" style="display:none">
-  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="gTitle">
+  <div class="wrap">
     <header>
-      <div>
-        <div class="game-phase" id="gPhase"></div>
-        <h3 id="gTitle"></h3>
+      <img src="logo.png" alt="Olga & Oriol — 04.10.2025" class="logo" />
+      <div class="scorebar" aria-live="polite">
+        <span class="pill" id="uriPill">URI <span id="uriScore">0</span></span>
+        <span class="pill" id="olgaPill">OLGA <span id="olgaScore">0</span></span>
+        <button class="btn-reset" id="resetAll" type="button">Reset</button>
       </div>
-      <button class="close" id="closeModal" aria-label="Cerrar">✕</button>
     </header>
-    <p class="summary" id="gSummary"></p>
-    <div class="meta">
-      <div class="card"><div class="lab">Preparación</div><div class="val" id="gPrep"></div></div>
-      <div class="card"><div class="lab">Instrucciones</div><div class="val" id="gRules"></div></div>
-      <div class="card"><div class="lab">Puntuación</div><div class="val" id="gScoring"></div></div>
-    </div>
 
-    <div id="startArea" class="timer-area">
-      <button class="btn-acc btn" id="startBtn">Empezar</button>
-      <div id="timerWrap" style="display:none; align-items:center; gap:10px">
-        <div class="timer" id="timer">00:00</div>
-        <button class="btn" id="pauseBtn">Pausa</button>
-        <button class="btn" id="resetBtn">Reset</button>
-      </div>
-    </div>
+    <h2 class="section">Juegos</h2>
 
-    <div id="counters" class="counters" style="display:none">
-      <div class="counter">
-        <div class="lab">URI</div>
-        <div class="row">
-          <button class="btn op" id="aMinus">−</button>
-          <div class="val" id="aVal">0</div>
-          <button class="btn op" id="aPlus">+</button>
+    <!-- Las Madrecdotas (ejemplo ya completado) -->
+    <article class="card success" id="card-madrecdotas" aria-labelledby="ttl-madre">
+      <h3>Emancipación</h3>
+      <a class="title" id="ttl-madre" href="#">Las Madrecdotas</a>
+      <p>Duelo 1v1. MC lee anécdotas; Uri y Olga adivinan por separado.</p>
+      <div class="status"><span class="check">✓</span>Completado</div>
+    </article>
+
+    <!-- Bonus Sprite (ejemplo ya completado) -->
+    <article class="card success" id="card-sprite" aria-labelledby="ttl-sprite">
+      <h3>Emancipación</h3>
+      <a class="title" id="ttl-sprite" href="#">Bonus: Exorcismo de Maitreya</a>
+      <p>Equipos. Sprite 330 ml sin eructar; rondas rápidas.</p>
+      <div class="status"><span class="check">✓</span>Completado</div>
+    </article>
+
+    <!-- CORTAR EL CORDÓN — ACTUALIZADO A DUELO URI/OLGA/EMPATE -->
+    <article class="card" id="card-cordon" aria-labelledby="ttl-cordon">
+      <h3>Emancipación</h3>
+      <a class="title" id="ttl-cordon" href="#">Cortar el cordón (doble Human Knot)</a>
+      <p><strong>Duelo puntuable.</strong> Aunque se juega en equipos, el punto global es para
+        <em>Uri</em> o <em>Olga</em> según quién lidere/mejor resuelva. Puede haber <em>empate</em>.</p>
+
+      <div class="duel" role="group" aria-labelledby="ttl-cordon">
+        <div class="choices">
+          <label class="choice"><input type="radio" name="cordonWinner" value="URI"> URI gana</label>
+          <label class="choice"><input type="radio" name="cordonWinner" value="OLGA"> OLGA gana</label>
+          <label class="choice"><input type="radio" name="cordonWinner" value="DRAW"> Empate</label>
         </div>
-      </div>
-      <div class="counter">
-        <div class="lab">OLGA</div>
-        <div class="row">
-          <button class="btn op" id="bMinus">−</button>
-          <div class="val" id="bVal">0</div>
-          <button class="btn op" id="bPlus">+</button>
+        <div class="actions">
+          <button class="btn primary" id="saveCordon" type="button">Guardar resultado</button>
+          <button class="btn ghost" id="clearCordon" type="button">Limpiar</button>
         </div>
+        <span class="hint">Selecciona el ganador y guarda para sumar al marcador global.</span>
       </div>
-    </div>
 
-    <div class="outcome">
-      <div class="lab">Resultado de la prueba</div>
-      <div class="out-btns" id="outcomeBtns">
-        <!-- Buttons injected based on game kind -->
+      <div class="status" id="cordonDone" style="display:none;margin-top:6px;">
+        <span class="check">✓</span>Completado
       </div>
-      <div class="out-done" id="saved" style="display:none">
-        <span id="savedText">Guardado</span>
-        <button class="undo" id="undoBtn">Deshacer</button>
-      </div>
-    </div>
+    </article>
+
+    <!-- Banco de Microbiotas (ejemplo ya completado) -->
+    <article class="card success" id="card-micro" aria-labelledby="ttl-micro">
+      <h3>Introducción de Olga al clan</h3>
+      <a class="title" id="ttl-micro" href="#">Banco de Microbiotas</a>
+      <p>Duelo 1v1. A ciegas, tocar y adivinar contenidos.</p>
+      <div class="status"><span class="check">✓</span>Completado</div>
+    </article>
+
+    <footer>Hecho con ❤️ para Olga &amp; Oriol.</footer>
   </div>
-</div>
 
 <script>
-const GAMES = [
-  {id:1,title:'Las Madrecdotas',phase:'Emancipación',summary:'DUELO 1v1. MC lee anécdotas; Uri y Olga adivinan por separado.',
-   prep:'Caja con anécdotas impresas; elegir MC.',rules:'Se lee una anécdota; cada uno apuesta sin deliberar.',
-   scoring:'Más aciertos gana. Marcador: 1 punto al ganador; empate = 1 y 1.',kind:'duel'},
-  {id:2,title:'Bonus: Exorcismo de Maitreya',phase:'Emancipación',summary:'EQUIPOS. Sprite 330 ml sin eructar; rondas rápidas.',
-   prep:'Vasos, Sprite, toallas; definir rondas.',rules:'Sale 1 por equipo; si eructa, pierde la ronda.',
-   scoring:'Más rondas gana. Marcador: 1 punto al equipo ganador; empate = 1 y 1.',kind:'team'},
-  {id:3,title:'Cortar el cordón (doble Human Knot)',phase:'Emancipación',summary:'EQUIPOS. Dos nudos humanos guiados por Uri/Olga.',
-   prep:'Formar 2 grupos, explicar nudo humano.',rules:'Sin soltarse, seguir la guía para desenredarse.',
-   scoring:'Mejor tiempo gana. Marcador: 1 punto al equipo ganador; empate = 1 y 1.',kind:'team'},
-  {id:4,title:'Banco de Microbiotas',phase:'Introducción de Olga al clan',summary:'DUELO 1v1. A ciegas, tocar y adivinar contenidos.',
-   prep:'Tuppers numerados, antifaces, toallitas.',rules:'30s por tupper; describir y adivinar.',
-   scoring:'Más aciertos gana. Marcador: 1 punto al ganador; empate = 1 y 1.',kind:'duel'},
-  {id:5,title:'Try Not to Laugh — TikTok (QR)',phase:'Introducción de Olga al clan',summary:'EQUIPOS. Agua en la boca; performances con vídeos al azar.',
-   prep:'QR playlist, altavoz, vasos, cubos/toallas.',rules:'Si alguien ríe/escupe, punto rival. Jugar a 7–10.',
-   scoring:'Más puntos gana. Marcador: 1 punto al equipo ganador; empate = 1 y 1.',kind:'team'},
-  {id:6,title:'Camiseta-siamesa — 3 mini‑retos',phase:'Fusión',summary:'COOP. Unidos (una mano c/u): envolver, avión, inflar/atar globo.',
-   prep:'Sudadera XL, papel+celo+tijeras, hojas A4, globos.',rules:'3–4 min por reto; completar 2 de 3 = éxito.',
-   scoring:'Si éxito → Empate (1+1). Si fallo → Nadie (0).',kind:'coop'},
-  {id:7,title:'Vivir en un musical',phase:'Fusión',summary:'EQUIPOS. Escenas del lore cantadas e improvisadas.',
-   prep:'Lista de escenas (sobres/QR), altavoz.',rules:'1 min de preparación + 60–90 s de número musical.',
-   scoring:'Jurado puntúa creatividad+coherencia+ejecución. Marcador 1 punto al ganador; empate = 1 y 1.',kind:'team'},
-  {id:8,title:'Yincana de fotos — Multiagente',phase:'UriGPT multiagente',summary:'EQUIPOS. Fotos de roles (cocinero, masajista, terapeuta, jardinero, motorista).',
-   prep:'1 móvil por equipo; 12–15 min.',rules:'Cada foto debe cumplir rol + 1 condición extra.',
-   scoring:'Más fotos válidas gana. Desempate: “Foto del día”. Marcador 1 punto; empate = 1 y 1.',kind:'team'},
-  {id:9,title:'Riego milagroso',phase:'Vida en el palacete',summary:'EQUIPOS. Pasar agua sin mirar atrás hasta meta.',
-   prep:'Tuppers, botella por equipo; zona exterior.',rules:'Cadena por encima; último vacía en meta.',
-   scoring:'Más volumen / primero a 500 ml gana. Marcador 1 punto; empate = 1 y 1.',kind:'team'},
-  {id:10,title:'No salgas en la foto (Foto Ninja)',phase:'Vida en el palacete',summary:'EQUIPOS. Fotógrafo a ciegas; quien sale nítido, eliminado.',
-   prep:'Móvil/cámara, antifaz, zona delimitada.',rules:'2–3 rondas; gana el equipo con menos eliminados.',
-   scoring:'Marcador 1 punto al ganador; empate = 1 y 1.',kind:'team'},
-  {id:11,title:'Cata de bebidas (Caja oculta)',phase:'Vida en el palacete',summary:'EQUIPOS. Caja opaca con pajitas; si te toca picante, caes.',
-   prep:'Caja A–F, pajitas nuevas, 5 normales + 1 picante suave.',rules:'Turnos alternos; al normal se añade otra picante y se reordena.',
-   scoring:'Más jugadores en pie gana. Marcador 1 punto; empate = 1 y 1.',kind:'team'},
-  {id:12,title:'Recogida a ciegas — Piezas',phase:'Vida en el palacete',summary:'EQUIPOS. Un ciego por equipo; recoger todas antes.',
-   prep:'Campo con piezas y “minas” blandas; 2 antifaces.',rules:'Mover lento con guía por voz; 1 pieza por viaje; si pisa mina, pierde la pieza.',
-   scoring:'Gana quien recoge todas antes; si no, quien más tenga al límite. Marcador 1 punto; empate = 1 y 1.',kind:'team'},
-];
+  // --- util persistencia simple ---
+  const SKEY = 'oo_scores_v1';
+  const CKEY = 'cordon_result_v1';
 
-// State
-const score = JSON.parse(localStorage.getItem('urigaScore')||'{"uri":0,"olga":0}');
-const results = JSON.parse(localStorage.getItem('urigaResults')||'{}');
-function saveScore(){ localStorage.setItem('urigaScore', JSON.stringify(score)); }
-function saveResults(){ localStorage.setItem('urigaResults', JSON.stringify(results)); }
-function renderScore(){
-  document.getElementById('score-uri').textContent = score.uri;
-  document.getElementById('score-olga').textContent = score.olga;
-}
-function addPoint(who, n=1){
-  score[who] = Math.max(0, (score[who]||0)+n);
-  saveScore(); renderScore();
-}
+  const $ = (q)=>document.querySelector(q);
+  const uriScoreEl = $('#uriScore');
+  const olgaScoreEl = $('#olgaScore');
 
-// Tiles
-const tiles = document.getElementById('tiles');
-function renderTiles(){
-  tiles.innerHTML = '';
-  GAMES.forEach(g => {
-    const btn = document.createElement('button');
-    btn.className = 'tile' + (results[g.id] ? ' done':'');
-    btn.innerHTML = `
-      <div class="phase">${g.phase}</div>
-      <div class="title">${g.title}</div>
-      <div class="sum">${g.summary}</div>
-      ${results[g.id] ? '<div class="done-badge">✔ Completado</div>':''}
-    `;
-    btn.onclick = () => openGame(g);
-    tiles.appendChild(btn);
+  function loadScores(){
+    try{
+      const s = JSON.parse(localStorage.getItem(SKEY) || '{"uri":0,"olga":0}');
+      return {uri:+s.uri||0, olga:+s.olga||0};
+    }catch{ return {uri:0, olga:0}; }
+  }
+  function saveScores({uri,olga}){
+    localStorage.setItem(SKEY, JSON.stringify({uri,olga}));
+  }
+  function renderScores(){
+    const s = loadScores();
+    uriScoreEl.textContent = s.uri;
+    olgaScoreEl.textContent = s.olga;
+  }
+  renderScores();
+
+  // Reset global
+  $('#resetAll').addEventListener('click', ()=>{
+    if(!confirm('¿Reiniciar marcador global?')) return;
+    saveScores({uri:0,olga:0});
+    localStorage.removeItem(CKEY);
+    // limpiar estado de la carta
+    document.querySelectorAll('input[name="cordonWinner"]').forEach(i=>{
+      i.checked=false; i.disabled=false;
+    });
+    $('#cordonDone').style.display='none';
+    $('#card-cordon').classList.remove('success');
+    renderScores();
   });
-}
 
-// Modal logic
-const modal = document.getElementById('modal');
-const closeModal = document.getElementById('closeModal');
-let timerRunning=false, tStart=0, tElapsed=0, tInt=null;
-let aVal=0, bVal=0, currentGame=null;
-
-function fmt(ms){ const s=Math.floor(ms/1000), m=Math.floor(s/60), r=s%60; return String(m).padStart(2,'0')+':'+String(r).padStart(2,'0'); }
-function tick(){ const el=document.getElementById('timer'); el.textContent=fmt(tElapsed + (timerRunning? (performance.now()-tStart):0)); }
-
-function resetTimerArea(){
-  timerRunning=false; tStart=0; tElapsed=0; if(tInt) cancelAnimationFrame(tInt);
-  document.getElementById('timer').textContent='00:00';
-  document.getElementById('timerWrap').style.display='none';
-  document.getElementById('startBtn').style.display='inline-block';
-  document.getElementById('pauseBtn').textContent='Pausa';
-}
-
-function startTimer(){
-  document.getElementById('startBtn').style.display='none';
-  document.getElementById('timerWrap').style.display='flex';
-  if(!timerRunning){ timerRunning=true; tStart=performance.now(); const loop=()=>{ if(timerRunning){ tick(); tInt=requestAnimationFrame(loop);} }; tInt=requestAnimationFrame(loop); }
-}
-function pauseTimer(){
-  if(timerRunning){ tElapsed += performance.now()-tStart; timerRunning=false; document.getElementById('pauseBtn').textContent='Reanudar'; }
-  else { timerRunning=true; tStart=performance.now(); document.getElementById('pauseBtn').textContent='Pausa'; const loop=()=>{ if(timerRunning){ tick(); tInt=requestAnimationFrame(loop);} }; tInt=requestAnimationFrame(loop); }
-}
-function hardReset(){
-  timerRunning=false; tElapsed=0; document.getElementById('pauseBtn').textContent='Pausa'; resetTimerArea();
-  aVal=0; bVal=0; document.getElementById('aVal').textContent='0'; document.getElementById('bVal').textContent='0';
-}
-
-function openGame(g){
-  currentGame=g;
-  document.getElementById('gPhase').textContent=g.phase;
-  document.getElementById('gTitle').textContent=g.title;
-  document.getElementById('gSummary').textContent=g.summary;
-  document.getElementById('gPrep').textContent=g.prep;
-  document.getElementById('gRules').textContent=g.rules;
-  document.getElementById('gScoring').textContent=g.scoring;
-
-  // Timer reset
-  hardReset();
-
-  // Counters visibility
-  document.getElementById('counters').style.display = (g.kind==='team') ? 'grid' : 'none';
-
-  // Outcome buttons
-  const out = document.getElementById('outcomeBtns');
-  out.innerHTML='';
-  const saved = document.getElementById('saved');
-  const savedText = document.getElementById('savedText');
-  saved.style.display='none';
-
-  const already = results[g.id];
-
-  if(g.kind==='team'){
-    // Counters + Completar
-    const completeBtn = document.createElement('button');
-    completeBtn.className='btn-acc btn';
-    completeBtn.textContent = already ? 'Completado' : 'Completar';
-    completeBtn.disabled = !!already;
-    completeBtn.onclick = () => {
-      // Decide outcome by counters
-      let outcome='tie';
-      if(aVal>bVal) outcome='uri';
-      else if(bVal>aVal) outcome='olga';
-      applyOutcome(outcome);
-    };
-    out.appendChild(completeBtn);
-  } else {
-    // Duel/Coop: three options
-    const mk = (label, key, alt=false)=>{
-      const b=document.createElement('button');
-      b.className='opt'+(alt?' alt':'');
-      b.textContent=label; b.disabled=!!already;
-      b.onclick=()=>applyOutcome(key);
-      return b;
-    };
-    out.appendChild(mk('Gana Uri','uri'));
-    out.appendChild(mk('Gana Olga','olga'));
-    out.appendChild(mk('Empate','tie',true));
+  // --- lógica del duelo "Cortar el cordón" ---
+  function markCordonDone(){
+    $('#card-cordon').classList.add('success');
+    $('#cordonDone').style.display='flex';
+    document.querySelectorAll('input[name="cordonWinner"]').forEach(i=>i.disabled=true);
   }
+  // cargar estado previo
+  (function initCordon(){
+    const prev = localStorage.getItem(CKEY);
+    if(prev){
+      const val = prev;
+      const input = document.querySelector(`input[name="cordonWinner"][value="${val}"]`);
+      if(input){ input.checked=true; markCordonDone(); }
+    }
+  })();
 
-  // After outcome saved
-  function applyOutcome(o){
-    if(results[g.id]) return;
-    if(o==='uri') addPoint('uri',1);
-    else if(o==='olga') addPoint('olga',1);
-    else if(o==='tie'){ addPoint('uri',1); addPoint('olga',1); }
-    results[g.id]=o; saveResults();
-    renderTiles();
-    savedText.textContent = (o==='tie')?'Guardado: Empate (1+1)':(o==='uri')?'Guardado: Gana Uri (+1)':'Guardado: Gana Olga (+1)';
-    saved.style.display='flex';
-    // Disable buttons
-    Array.from(out.querySelectorAll('button')).forEach(b=>b.disabled=true);
-  }
+  $('#saveCordon').addEventListener('click', ()=>{
+    const sel = document.querySelector('input[name="cordonWinner"]:checked');
+    if(!sel){ alert('Selecciona un resultado.'); return; }
+    const val = sel.value; // URI | OLGA | DRAW
+    const s = loadScores();
+    if(!localStorage.getItem(CKEY)){ // solo sumar la primera vez
+      if(val === 'URI') s.uri += 1;
+      if(val === 'OLGA') s.olga += 1;
+      // Empate no suma
+      saveScores(s);
+      renderScores();
+    }
+    localStorage.setItem(CKEY, val);
+    markCordonDone();
+  });
 
-  // Undo button
-  document.getElementById('undoBtn').onclick = () => {
-    const o = results[g.id];
-    if(!o) return;
-    if(o==='uri') addPoint('uri',-1);
-    else if(o==='olga') addPoint('olga',-1);
-    else if(o==='tie'){ addPoint('uri',-1); addPoint('olga',-1); }
-    delete results[g.id]; saveResults();
-    saved.style.display='none';
-    renderTiles();
-    // Re-enable buttons
-    Array.from(out.querySelectorAll('button')).forEach(b=>b.disabled=false);
-  };
+  $('#clearCordon').addEventListener('click', ()=>{
+    const prev = localStorage.getItem(CKEY);
+    if(!prev) { 
+      document.querySelectorAll('input[name="cordonWinner"]').forEach(i=>i.checked=false);
+      return; 
+    }
+    if(!confirm('¿Quitar resultado y ajustar marcador?')) return;
+    // revertir suma si no fue empate
+    const s = loadScores();
+    if(prev === 'URI' && s.uri>0) s.uri -= 1;
+    if(prev === 'OLGA' && s.olga>0) s.olga -= 1;
+    saveScores(s); renderScores();
 
-  modal.style.display='flex';
-  // reflect saved state in UI
-  if(already){
-    const t = (already==='tie')?'Guardado: Empate (1+1)':(already==='uri')?'Guardado: Gana Uri (+1)':'Guardado: Gana Olga (+1)';
-    savedText.textContent=t; saved.style.display='flex';
-  }
-}
-
-// Controls
-document.getElementById('startBtn').onclick = startTimer;
-document.getElementById('pauseBtn').onclick = pauseTimer;
-document.getElementById('resetBtn').onclick = hardReset;
-document.getElementById('aMinus').onclick = ()=>{ aVal=Math.max(0,aVal-1); document.getElementById('aVal').textContent=aVal; };
-document.getElementById('aPlus').onclick = ()=>{ aVal=aVal+1; document.getElementById('aVal').textContent=aVal; };
-document.getElementById('bMinus').onclick = ()=>{ bVal=Math.max(0,bVal-1); document.getElementById('bVal').textContent=bVal; };
-document.getElementById('bPlus').onclick = ()=>{ bVal=bVal+1; document.getElementById('bVal').textContent=bVal; };
-document.getElementById('closeModal').onclick = ()=>{ modal.style.display='none'; };
-document.getElementById('modal').addEventListener('click', (e)=>{ if(e.target===document.getElementById('modal')) modal.style.display='none'; });
-document.getElementById('resetAll').onclick = ()=>{
-  if(confirm('¿Resetear marcador y resultados?')){
-    score.uri=0; score.olga=0; saveScore(); renderScore();
-    for(const k in results) delete results[k]; saveResults(); renderTiles();
-  }
-};
-
-// Init
-renderScore();
-renderTiles();
+    localStorage.removeItem(CKEY);
+    document.querySelectorAll('input[name="cordonWinner"]').forEach(i=>{
+      i.checked=false; i.disabled=false;
+    });
+    $('#card-cordon').classList.remove('success');
+    $('#cordonDone').style.display='none';
+  });
 </script>
 </body>
 </html>
