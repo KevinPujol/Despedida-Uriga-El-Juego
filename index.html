@@ -31,7 +31,7 @@
   .logo{height:72px; width:auto; display:block}
   .scorebar{display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap}
   .pill{background:var(--pill); color:#fff; padding:10px 16px; border-radius:999px; font-weight:800; letter-spacing:.3px; display:inline-flex; align-items:center; gap:10px; box-shadow:var(--shadow)}
-  .pill .name{opacity:.9; font-size:13px; letter-spacing:.08em}
+  .pill .name{opacity:1; color:#1a1a1a; font-size:13px; font-weight:700; letter-spacing:.08em}
   .pill.uri{background: color-mix(in srgb, var(--uri) 18%, white)}
   .pill.uri .score{color:var(--uri)}
   .pill.olga{background: color-mix(in srgb, var(--olga) 18%, white)}
@@ -129,7 +129,7 @@
     <header>
       <img src="logo.png" alt="Olga & Oriol — 04.10.2025" class="logo" />
       <div class="progress">
-        <div class="label"><span id="progressText">0 de 0 completados</span><span id="filterHint">desliza para cambiar filtro</span></div>
+        <div class="label"><span id="progressText">0 de 0 completados</span></div>
         <div class="bar"><span id="progressBar"></span></div>
       </div>
       <div class="scorebar" aria-live="polite">
@@ -315,7 +315,7 @@
       el.setAttribute('data-id', g.id);
       el.innerHTML = `
         <div class="meta-row"><span>${g.category}</span></div>
-        <span class="title">${String(idx+1).padStart(2,'0')} ${g.emoji} ${g.title}</span>
+        <span class="title">${g.emoji} ${String(idx+1).padStart(2,'0')}. ${g.title}</span>
         ${completed ? `<div class="badge"><span class="check">✓</span>Completado</div>`:''}
       `;
       el.addEventListener('click', ()=>openDetail(g.id));
