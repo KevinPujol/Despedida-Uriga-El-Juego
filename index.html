@@ -48,12 +48,10 @@
   .bar > span{display:block;height:100%;width:0;background: color-mix(in srgb, var(--primary) 45%, white); border-radius:999px; transition:width .35s ease}
 
   /* Filters */
-  .filters{display:flex; gap:8px; justify-content:center; margin:10px 0 18px; flex-wrap:wrap}
+  .filters{display:flex; gap:8px; justify-content:center; margin:10px 0 16px; flex-wrap:wrap}
+
   .chip{border:1px solid var(--border); background:#fff; padding:8px 12px; border-radius:999px; cursor:pointer; font-weight:600; color:#385247}
   .chip.active{background: color-mix(in srgb, var(--primary) 10%, white); border-color: color-mix(in srgb, var(--primary) 25%, white)}
-
-  /* Section */
-  h2.section{font-size:14px; text-transform:uppercase; letter-spacing:.12em; color:#6a746f; margin:10px 4px 10px}
 
   /* Card tiles */
   .grid{display:grid;grid-template-columns:1fr;gap:12px}
@@ -64,7 +62,6 @@
   .meta-row{display:flex;align-items:center;gap:8px;margin:0 0 6px;color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.08em}
   .meta-row .icon{font-size:16px}
   .card .title{display:block; font-weight:800; color:#2e4b3d; text-decoration:none; margin-bottom:6px; font-size:16px}
-  .card p{margin:0; line-height:1.35; color:#2a2a2a}
   .card.completed{background:var(--success-bg); border-color:#cfead7}
   .badge{display:inline-flex;align-items:center;gap:6px;margin-top:10px;color:var(--success);font-weight:700}
   .badge .check{width:18px;height:18px;border-radius:4px;border:2px solid var(--success);display:inline-flex;align-items:center;justify-content:center;font-size:14px}
@@ -88,7 +85,7 @@
   .btn.primary{background:var(--primary);color:#fff}
   .btn.ghost{background:#fff;border:1px solid var(--border)}
   .btn.danger{background: #fff; color: var(--danger); border:1px solid color-mix(in srgb, var(--danger) 30%, white)}
-  .hint{font-size:12px;color:#2f3b36; display:none;} /* ocultamos el texto de ayuda */
+  .hint{font-size:12px;color:#2f3b36; display:none;}
   .divider{height:1px;background:var(--border);margin:12px 0}
   .counter{display:flex;align-items:center;gap:8px}
   .counter .score{min-width:28px;text-align:center;font-weight:800}
@@ -101,23 +98,23 @@
     .card{padding:14px}
   }
 
-  /* Toast (centrado y más pequeño) */
+  /* Toast */
   #toast{
     position:fixed;
     left:50%;
     transform:translateX(-50%);
-    bottom:28px;
+    bottom:24px;
     background:var(--toast);
     color:#fff;
     padding:8px 14px;
-    border-radius:16px;
+    border-radius:18px;
     display:none;
     z-index:1200;
     box-shadow:var(--shadow);
     font-size:12px;
-    line-height:1.3;
+    line-height:1.2;
     white-space:nowrap;
-    max-width:95%;
+    max-width:92%;
     overflow:hidden;
     text-overflow:ellipsis;
   }
@@ -143,8 +140,6 @@
       <button class="chip" data-filter="pending">Pendientes</button>
       <button class="chip" data-filter="done">Completados</button>
     </div>
-
-    <h2 class="section">Juegos</h2>
 
     <div class="grid" id="tiles"></div>
 
@@ -185,70 +180,59 @@
 <script>
 (function(){
   // TIPOS:
-  // - points: marcador local (Uri/Olga); al finalizar: mayor gana +1 global; empate +1 global a ambos
+  // - points: marcador local (Uri/Olga); al finalizar:
+  //           mayor gana +1 global; empate +1 global a ambos
   // - versus: Uri/Olga/Empate y suma al global al guardar
   // - ritual: sin puntos; sólo marcar completado
 
   const GAMES = [
-    { id:'madrecdotas', category:'Emancipación', title:'Las Madrecdotas', emoji:'⚖️',
-      summary:'Anécdotas del clan. Uri y Olga adivinan por separado.', type:'points',
+    { id:'madrecdotas', category:'Emancipación', title:'Las Madrecdotas', emoji:'⚖️', type:'points',
       prep:'Caja con anécdotas impresas y autor indicado.',
       instructions:'El MC lee una anécdota. Uri y Olga dicen de quién es (sin hablar entre ellos). Asigna +1 local al que acierte.'
     },
-    { id:'cordon', category:'Emancipación', title:'Cortar el cordón (doble Human Knot)', emoji:'🪢',
-      summary:'Dos nudos humanos guiados: Uri vs Olga. Se decide ganador o empate.', type:'versus',
+    { id:'cordon', category:'Emancipación', title:'Cortar el cordón (doble Human Knot)', emoji:'🪢', type:'versus',
       prep:'Formar 2 grupos del mismo tamaño. Manos a personas no adyacentes.',
       instructions:'Sin soltarse, seguir a su guía para deshacer el nudo. Se valora rapidez/claridad/diversión. Resultado: Uri / Olga / Empate (suma al marcador global).'
     },
-    { id:'microbiotas', category:'Introducción de Olga al clan', title:'Banco de Microbiotas', emoji:'⚗️',
-      summary:'A ciegas, tocar y adivinar contenidos. Risas y agua 💦.', type:'points',
+    { id:'microbiotas', category:'Introducción de Olga al clan', title:'Banco de Microbiotas', emoji:'⚗️', type:'points',
       prep:'Tuppers opacos numerados; antifaces; toallitas; pistola(s) de agua.',
       instructions:'Con antifaz, tocan 30s el tupper. Describen y adivinan. Suma +1 local a quien acierte.'
     },
-    { id:'tiktok', category:'Introducción de Olga al clan', title:'Try Not to Laugh — TikTok (QR)', emoji:'🕺',
-      summary:'Agua en la boca. Performances guiadas por vídeos.', type:'points',
+    { id:'tiktok', category:'Introducción de Olga al clan', title:'Try Not to Laugh — TikTok (QR)', emoji:'🕺', type:'points',
       prep:'Playlist/QR, móvil/altavoz, vasos, cubo/toalla. Zonas de performers y aguas.',
       instructions:'Duelos: si alguien ríe/escupe primero, +1 local para el otro. Al final, el mayor gana 1 global; empate +1 a ambos.'
     },
-    { id:'cata', category:'Rutina en Barcelona', title:'Cata de bebidas (a ciegas)', emoji:'🥤',
-      summary:'Caja A–F. 5 bebidas normales + 1 picante (se añaden más).', type:'versus',
+    { id:'cata', category:'Rutina en Barcelona', title:'Cata de bebidas (a ciegas)', emoji:'🥤', type:'versus',
       prep:'Caja opaca con pajitas; surtido de bebidas; pajitas nuevas por turno.',
       instructions:'Por turnos eligen un agujero y beben. Normales siguen; picante elimina. Al final se declara Uri / Olga / Empate y suma al marcador global.'
     },
-    { id:'siameses', category:'Fusión en Uriga', title:'Mini‑retos a dos manos', emoji:'🤝',
-      summary:'Tres tareas cooperativas con una mano cada uno. Sin sudaderas.', type:'ritual',
-      prep:'Cinta para unir antebrazo/cintura; mesa; kits: hoja A4; pack de envoltorio (papel+celo máx 3+tijeras sin punta+objeto); globo+rotulador.',
-      instructions:'(A) Avión que cruce línea/5m; (B) Envolver con máx. 3 trozos de celo; (C) Inflar, atar y dibujar cara en un globo. Reglas: una mano cada uno; sin dientes/rodillas. Al final, se les ata una mano y queda una libre cada uno. Sin puntos.'
+    { id:'siameses', category:'Fusión en Uriga', title:'Mini‑retos a dos manos', emoji:'🤝', type:'ritual',
+      prep:'Cinta para unir antebrazo/cintura; mesa; kits varios.',
+      instructions:'Tres tareas cooperativas con una mano cada uno. Sin puntos.'
     },
-    { id:'musical', category:'Fusión en Uriga', title:'Vivir en un musical — Escenas', emoji:'🎤',
-      summary:'Impro musical de escenas del lore. Todo cantado.', type:'ritual',
+    { id:'musical', category:'Fusión en Uriga', title:'Vivir en un musical — Escenas', emoji:'🎤', type:'ritual',
       prep:'Lista de 5–8 escenas (sobres o QR); altavoz.',
-      instructions:'Cada equipo saca escena al azar. 1 min de preparación + 60–90s de número musical. Humor cariñoso, sin nada gráfico. Sin puntos.'
+      instructions:'Impro de 60–90s. Sin puntos.'
     },
-    { id:'yincana', category:'UriGPT', title:'Yincana de fotos — Multiagente Edition', emoji:'📸',
-      summary:'Fotos recreando roles de Uri con condiciones extra.', type:'versus',
+    { id:'yincana', category:'UriGPT', title:'Yincana de fotos — Multiagente Edition', emoji:'📸', type:'versus',
       prep:'1 móvil por equipo. Tiempo total: 12–15 min.',
-      instructions:'Cada foto muestra un rol (cocinero, motorista, terapeuta…). Todos salen y cumplen 1 condición (p.ej., nadie tocando el suelo, todos conectados, alguien escondido, cara exagerada). Se decide Uri / Olga / Empate y suma al global.'
+      instructions:'Se decide Uri / Olga / Empate y suma al global.'
     },
-    { id:'recogida', category:'Vida en el Palacete', title:'Recogida a ciegas', emoji:'🙈',
-      summary:'Campo con piezas y “minas” blandas. Un ciego por equipo.', type:'versus',
+    { id:'recogida', category:'Vida en el Palacete', title:'Recogida a ciegas', emoji:'🙈', type:'versus',
       prep:'Delimitar campo, piezas repartidas, obstáculos seguros, 2 antifaces.',
-      instructions:'1 ciego por equipo entra al campo guiado por voz. +1 por pieza en base. Al final, Uri / Olga / Empate y suma al marcador global.'
+      instructions:'+1 por pieza en base. Al final, Uri / Olga / Empate y suma al marcador global.'
     },
-    { id:'nofoto', category:'Vida en el Palacete', title:'No salgas en la foto (cucarachas)', emoji:'🪳',
-      summary:'Fotógrafo a ciegas intenta “capturar cucarachas”.', type:'versus',
+    { id:'nofoto', category:'Vida en el Palacete', title:'No salgas en la foto (cucarachas)', emoji:'🪳', type:'versus',
       prep:'Delimitar salón; móvil/cámara; desactivar flash/sonidos; antifaz.',
-      instructions:'Ronda 2 min: el fotógrafo dispara guiado por ruidos/cebos. Se revisa galería: quien salga nítido eliminado. Resultado global: Uri / Olga / Empate y suma al global.'
+      instructions:'Se revisa galería; quien salga nítido eliminado. Resultado global: Uri / Olga / Empate.'
     },
-    { id:'riego', category:'Vida en el Palacete', title:'Riego Milagroso — Pasa el agua atrás', emoji:'💧',
-      summary:'Cadena de agua sin mirar hasta llenar el tupper final.', type:'versus',
-      prep:'Dos filas por equipos, botellas, recipientes individuales y tupper final (exterior o suelo antideslizante).',
-      instructions:'El primero carga ~1/4 y vierte hacia atrás sin girarse. 2–3 min o hasta 500 ml. Uri / Olga / Empate y suma al global.'
+    { id:'riego', category:'Vida en el Palacete', title:'Riego Milagroso — Pasa el agua atrás', emoji:'💧', type:'versus',
+      prep:'Dos filas por equipos, botellas, recipientes individuales y tupper final.',
+      instructions:'Cadena de agua hasta objetivo. Suma al global.'
     },
-    { id:'sprite', category:'Bonus Final', title:'Exorcismo de Maitreya', emoji:'🫧',
-      summary:'Sprite 330 ml. Aguantar sin eructar en duelos.', type:'points',
-      prep:'Equipos igualados. Sprite fría en vasos iguales; toallas; 45–60s por ronda.',
-      instructions:'Sale 1 por equipo y beben a la vez. Si alguien eructa, +1 local para el otro. Al final: mayor gana 1 global; empate +1 a ambos.'
+    { id:'sprite', category:'Bonus Final', title:'Exorcismo de Maitreya', emoji:'🫧', type:'points',
+      prep:'Sprite fría; vasos iguales; toallas.',
+      instructions:'Duelos; si alguien eructa, +1 local para el otro. Al final: mayor gana 1 global; empate +1 a ambos.'
     }
   ];
 
@@ -263,6 +247,7 @@
   const olgaScoreEl = $('#olgaScore');
   const progressText = $('#progressText');
   const progressBar = $('#progressBar');
+  const tiles = $('#tiles');
 
   function loadScores(){
     try{
@@ -279,12 +264,11 @@
     olgaScoreEl.textContent = s.olga;
     const uriLead = $('#uriLead'); const olgaLead = $('#olgaLead');
     if(uriLead) uriLead.textContent = s.uri> s.olga ? '↑' : (s.uri<s.olga ? '↓' : ' ');
-    if(olgaLead) olgaLead.textContent = s.olga> s.uri ? '↑' : (s.uri>s.olga ? '↓' : ' ');
+    if(olgaLead) olgaLead.textContent = s.olga> s.uri ? '↑' : (s.olga>s.uri ? '↓' : ' ');
   }
   renderScores();
 
   // Tiles + filtros + progreso
-  const tiles = $('#tiles');
   let FILTER = 'all';
   function completedCount(){ return GAMES.filter(g=>!!localStorage.getItem(DONE_KEY(g.id))).length; }
   function renderProgress(){
@@ -336,28 +320,24 @@
       FILTER = order[idx];
       document.querySelectorAll('.chip').forEach(c=>c.classList.toggle('active', c.dataset.filter===FILTER));
       renderTiles();
-      showToast(\`Filtro: \${FILTER==='all'?'Todos': FILTER==='pending'?'Pendientes':'Completados'}\`);
+      showToast(`Filtro: ${FILTER==='all'?'Todos': FILTER==='pending'?'Pendientes':'Completados'}`);
     }
     touchStartX = null;
   }, {passive:true});
 
-  // Reset global + todo
+  // Reset global (y todo el estado de juegos)
   $('#resetAll').addEventListener('click', ()=>{
-    if(!confirm('¿Reiniciar todo? Se borrarán resultados y marcadores.')) return;
-
-    // Reinicia marcador global
-    saveScores({uri:0, olga:0});
-
-    // Borra estado de cada juego
+    if(!confirm('¿Reiniciar marcador global y todos los juegos?')) return;
+    saveScores({uri:0,olga:0});
+    // limpiar estado por juego
     GAMES.forEach(g=>{
       localStorage.removeItem(DONE_KEY(g.id));
       localStorage.removeItem(RESULT_KEY(g.id));
       localStorage.removeItem(PLOCAL_KEY(g.id));
     });
-
     renderScores();
     renderTiles();
-    showToast('Todos los juegos y marcadores reiniciados');
+    showToast('Todo reiniciado');
   });
 
   // Helpers marcador local
@@ -377,7 +357,7 @@
     t.textContent = msg;
     t.style.display = 'block';
     clearTimeout(showToast._t);
-    showToast._t = setTimeout(()=>{ t.style.display='none'; }, 2000);
+    showToast._t = setTimeout(()=>{ t.style.display='none'; }, 1600);
   }
 
   // Modal
@@ -401,19 +381,19 @@
     const prev = localStorage.getItem(RESULT_KEY(g.id)); // 'URI'|'OLGA'|'DRAW' or 'DONE'
 
     if(g.type==='points'){
-      hint.style.display = 'none'; // ocultar siempre
+      hint.style.display = 'none';
       const {u, o} = loadLocal(g.id);
       const wrap = document.createElement('div');
       wrap.className = 'controls responsive center';
-      wrap.innerHTML = \`
+      wrap.innerHTML = `
         <div class="counter"><strong>Uri</strong>
           <button class="btn ghost" id="uMinus">−1</button>
-          <span class="score" id="uScore">\${u}</span>
+          <span class="score" id="uScore">${u}</span>
           <button class="btn primary" id="uPlus">+1</button>
         </div>
         <div class="counter"><strong>Olga</strong>
           <button class="btn ghost" id="oMinus">−1</button>
-          <span class="score" id="oScore">\${o}</span>
+          <span class="score" id="oScore">${o}</span>
           <button class="btn primary" id="oPlus">+1</button>
         </div>
         <div class="controls stack" style="width:100%;max-width:420px">
@@ -421,7 +401,7 @@
           <button class="btn primary" id="finalize">Finalizar juego</button>
           <button class="btn danger" id="clearResult">Quitar resultado</button>
         </div>
-      \`;
+      `;
       sc.appendChild(wrap);
 
       function setLocal(newU, newO){
@@ -460,7 +440,7 @@
         localStorage.setItem(DONE_KEY(g.id), '1');
         setDisabled(true);
         renderTiles();
-        showToast(\`Resultado: \${outcome==='DRAW'?'Empate (+1 a ambos)':(outcome==='URI'?'Uri':'Olga')+' (+1 global)'}\`);
+        showToast(`Resultado: ${outcome==='DRAW'?'Empate (+1 a ambos)':(outcome==='URI'?'Uri':'Olga')+' (+1 global)'}`);
       };
 
       sc.querySelector('#clearResult').onclick = ()=>{
@@ -480,11 +460,11 @@
       };
 
     } else if(g.type==='versus'){
-      hint.style.display = 'none'; // ocultar siempre
+      hint.style.display = 'none';
 
       const wrap = document.createElement('div');
       wrap.className = 'controls responsive center';
-      wrap.innerHTML = \`
+      wrap.innerHTML = `
         <label class="choice"><input type="radio" name="winner" value="URI"> Uri gana</label>
         <label class="choice"><input type="radio" name="winner" value="OLGA"> Olga gana</label>
         <label class="choice"><input type="radio" name="winner" value="DRAW"> Empate</label>
@@ -492,12 +472,12 @@
           <button class="btn primary" id="saveResult">Guardar</button>
           <button class="btn danger" id="clearResult">Quitar resultado</button>
         </div>
-      \`;
+      `;
       sc.appendChild(wrap);
 
-      const prev = localStorage.getItem(RESULT_KEY(g.id));
-      if(prev){
-        const input = sc.querySelector(\`input[value="\${prev}"]\`);
+      const prev2 = localStorage.getItem(RESULT_KEY(g.id));
+      if(prev2){
+        const input = sc.querySelector(`input[value="${prev2}"]`);
         if(input) input.checked = true;
       }
 
@@ -536,12 +516,12 @@
       };
 
     } else if(g.type==='ritual'){
-      hint.style.display = 'none'; // ocultar siempre
+      hint.style.display = 'none';
       const wrap = document.createElement('div');
       wrap.className = 'controls stack center';
-      wrap.innerHTML = \`
-        <button class="btn primary" id="markDone">\${done?'Marcar como NO completado':'Marcar como completado'}</button>
-      \`;
+      wrap.innerHTML = `
+        <button class="btn primary" id="markDone">${done?'Marcar como NO completado':'Marcar como completado'}</button>
+      `;
       sc.appendChild(wrap);
       sc.querySelector('#markDone').onclick = ()=>{
         if(done){
