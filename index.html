@@ -32,27 +32,36 @@
   /* Section */
   h2.section{font-size:14px; text-transform:uppercase; letter-spacing:.12em; color:var(--muted); margin:22px 4px 10px}
 
-  /* Card */
-  .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px 16px;margin:14px 0}
-  .card.success{background:var(--success-bg); border-color:#cfead7}
+  /* Card tiles */
+  .grid{display:grid;grid-template-columns:1fr;gap:12px}
+  @media(min-width:560px){.grid{grid-template-columns:1fr 1fr}}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px;cursor:pointer;transition:transform .06s ease}
+  .card:hover{transform:translateY(-2px)}
   .card h3{margin:0 0 6px; font-size:14px; color:var(--muted)}
-  .card a.title{display:inline-block; font-weight:800; color:#2e4b3d; text-decoration:none; margin-bottom:6px}
-  .card p{margin:8px 0 12px; line-height:1.35}
-  .status{display:flex; align-items:center; gap:8px; color:var(--success); font-weight:700}
-  .check{width:18px;height:18px;border-radius:4px;border:2px solid var(--success);display:inline-flex;align-items:center;justify-content:center;font-size:14px}
+  .card .title{display:block; font-weight:800; color:#2e4b3d; text-decoration:none; margin-bottom:6px; font-size:16px}
+  .card p{margin:0; line-height:1.35; color:#2a2a2a}
+  .card.completed{background:var(--success-bg); border-color:#cfead7}
+  .badge{display:inline-flex;align-items:center;gap:6px;margin-top:10px;color:var(--success);font-weight:700}
+  .badge .check{width:18px;height:18px;border-radius:4px;border:2px solid var(--success);display:inline-flex;align-items:center;justify-content:center;font-size:14px}
 
-  /* Duel controls */
-  .duel{display:flex;flex-direction:column;gap:10px;margin-top:8px}
-  .choices{display:flex;gap:10px;flex-wrap:wrap}
+  /* Modal */
+  .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;align-items:center;justify-content:center;padding:16px;z-index:1000}
+  .modal{background:#fff;max-width:720px;width:100%;border-radius:16px;border:1px solid var(--border);box-shadow:var(--shadow)}
+  .modal header{flex-direction:row;align-items:flex-start;justify-content:space-between;margin:0;padding:16px 16px 0}
+  .modal .content{padding:0 16px 16px}
+  .modal h1{font-size:20px;margin:2px 0 6px}
+  .modal .meta{color:var(--muted);font-size:13px;margin-bottom:8px}
+  .close{background:#fff;border:1px solid var(--border);border-radius:10px;padding:6px 10px;cursor:pointer}
+  .section-block{background:#fff;border:1px dashed var(--border);border-radius:12px;padding:12px;margin:8px 0}
+  .section-block h4{margin:0 0 6px;font-size:14px;color:#2e4b3d}
+  .controls{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
   .choice{border:1px solid var(--border); border-radius:10px; padding:10px 12px; background:#fff; display:flex; align-items:center; gap:8px; cursor:pointer}
   .choice input{accent-color:var(--primary)}
-  .actions{display:flex; gap:10px; flex-wrap:wrap}
   .btn{border:none;border-radius:10px;padding:10px 14px;font-weight:700;cursor:pointer}
   .btn.primary{background:var(--primary);color:#fff}
   .btn.ghost{background:#fff;border:1px solid var(--border)}
   .hint{font-size:12px;color:var(--muted)}
-
-  /* Footer */
+  .divider{height:1px;background:var(--border);margin:12px 0}
   footer{margin-top:24px;text-align:center;color:var(--muted)}
 </style>
 </head>
@@ -69,62 +78,94 @@
 
     <h2 class="section">Juegos</h2>
 
-    <!-- Las Madrecdotas (ejemplo ya completado) -->
-    <article class="card success" id="card-madrecdotas" aria-labelledby="ttl-madre">
-      <h3>Emancipación</h3>
-      <a class="title" id="ttl-madre" href="#">Las Madrecdotas</a>
-      <p>Duelo 1v1. MC lee anécdotas; Uri y Olga adivinan por separado.</p>
-      <div class="status"><span class="check">✓</span>Completado</div>
-    </article>
-
-    <!-- Bonus Sprite (ejemplo ya completado) -->
-    <article class="card success" id="card-sprite" aria-labelledby="ttl-sprite">
-      <h3>Emancipación</h3>
-      <a class="title" id="ttl-sprite" href="#">Bonus: Exorcismo de Maitreya</a>
-      <p>Equipos. Sprite 330 ml sin eructar; rondas rápidas.</p>
-      <div class="status"><span class="check">✓</span>Completado</div>
-    </article>
-
-    <!-- CORTAR EL CORDÓN — ACTUALIZADO A DUELO URI/OLGA/EMPATE -->
-    <article class="card" id="card-cordon" aria-labelledby="ttl-cordon">
-      <h3>Emancipación</h3>
-      <a class="title" id="ttl-cordon" href="#">Cortar el cordón (doble Human Knot)</a>
-      <p><strong>Duelo puntuable.</strong> Aunque se juega en equipos, el punto global es para
-        <em>Uri</em> o <em>Olga</em> según quién lidere/mejor resuelva. Puede haber <em>empate</em>.</p>
-
-      <div class="duel" role="group" aria-labelledby="ttl-cordon">
-        <div class="choices">
-          <label class="choice"><input type="radio" name="cordonWinner" value="URI"> URI gana</label>
-          <label class="choice"><input type="radio" name="cordonWinner" value="OLGA"> OLGA gana</label>
-          <label class="choice"><input type="radio" name="cordonWinner" value="DRAW"> Empate</label>
-        </div>
-        <div class="actions">
-          <button class="btn primary" id="saveCordon" type="button">Guardar resultado</button>
-          <button class="btn ghost" id="clearCordon" type="button">Limpiar</button>
-        </div>
-        <span class="hint">Selecciona el ganador y guarda para sumar al marcador global.</span>
-      </div>
-
-      <div class="status" id="cordonDone" style="display:none;margin-top:6px;">
-        <span class="check">✓</span>Completado
-      </div>
-    </article>
-
-    <!-- Banco de Microbiotas (ejemplo ya completado) -->
-    <article class="card success" id="card-micro" aria-labelledby="ttl-micro">
-      <h3>Introducción de Olga al clan</h3>
-      <a class="title" id="ttl-micro" href="#">Banco de Microbiotas</a>
-      <p>Duelo 1v1. A ciegas, tocar y adivinar contenidos.</p>
-      <div class="status"><span class="check">✓</span>Completado</div>
-    </article>
+    <div class="grid" id="tiles"></div>
 
     <footer>Hecho con ❤️ para Olga &amp; Oriol.</footer>
   </div>
 
+  <!-- Modal detalle -->
+  <div class="modal-backdrop" id="backdrop" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="modal">
+      <header>
+        <div>
+          <div class="meta" id="detailCategory">Categoría</div>
+          <h1 id="detailTitle">Título</h1>
+        </div>
+        <button class="close" id="closeDetail" type="button">Cerrar</button>
+      </header>
+      <div class="content">
+        <div class="section-block">
+          <h4>Preparación</h4>
+          <div id="detailPrep"></div>
+        </div>
+        <div class="section-block">
+          <h4>Instrucciones</h4>
+          <div id="detailInstr"></div>
+        </div>
+        <div class="divider"></div>
+        <div class="section-block" id="scoringBlock">
+          <h4>Puntuación</h4>
+          <div id="scoringControls"></div>
+          <div class="hint" id="scoringHint"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
 <script>
+  // --- Datos de juegos (incluye TODOS los visibles en tus capturas) ---
+  const GAMES = [
+    {
+      id:'madrecdotas',
+      category:'Emancipación',
+      title:'Las Madrecdotas',
+      summary:'Duelo 1v1. MC lee anécdotas; Uri y Olga adivinan por separado.',
+      type:'duel', // suma a marcador
+      prep:'Tarjetas con anécdotas del grupo (o del MC). Marcador listo.',
+      instructions:'El maestro de ceremonias lee una anécdota. Uri y Olga dicen a quién creen que pertenece. Quien acierta más en la ronda gana el punto.'
+    },
+    {
+      id:'sprite',
+      category:'Emancipación',
+      title:'Bonus: Exorcismo de Maitreya',
+      summary:'Equipos. Sprite 330 ml sin eructar; rondas rápidas.',
+      type:'teams', // no suma marcador global; solo completar
+      prep:'Latas de Sprite/agua con gas, vasos. Toallas por si acaso.',
+      instructions:'Por equipos, cada participante bebe y debe aguantar sin eructar. El equipo con más resistentes gana internamente. Este juego no suma al marcador Uri/Olga.'
+    },
+    {
+      id:'cordon',
+      category:'Emancipación',
+      title:'Cortar el cordón (doble Human Knot)',
+      summary:'Equipos guiados por Uri y Olga. Duelo puntuable para Uri/Olga/Empate.',
+      type:'duel',
+      prep:'Formar dos grupos del mismo tamaño. Cada grupo hace un “nudo humano”.',
+      instructions:'Uri guía a un grupo y Olga al otro para deshacer el nudo humano. Se valora rapidez, claridad y diversión. El punto se lo lleva quien lidere mejor; puede haber empate.'
+    },
+    {
+      id:'microbiotas',
+      category:'Introducción de Olga al clan',
+      title:'Banco de Microbiotas',
+      summary:'Duelo 1v1. A ciegas, tocar y adivinar contenidos.',
+      type:'duel',
+      prep:'Caja opaca, objetos variados con texturas, vendas para los ojos.',
+      instructions:'A turnos, una persona mete la mano sin mirar y describe lo que siente. La otra intenta adivinar. Quien acumule más aciertos gana el punto.'
+    },
+    {
+      id:'tiktok',
+      category:'Introducción de Olga al clan',
+      title:'Try Not to Laugh — TikTok (QR)',
+      summary:'Equipos. Agua en la boca; performances con vídeos al azar.',
+      type:'teams',
+      prep:'Botellas de agua, lista de vídeos TikTok/QR listos para reproducir.',
+      instructions:'Por equipos: una persona con agua en la boca mira un vídeo; el resto intenta hacerle reír sin tocar. Si escupe/ríe, punto para el otro equipo. No suma al marcador global.'
+    }
+  ];
+
   // --- util persistencia simple ---
-  const SKEY = 'oo_scores_v1';
-  const CKEY = 'cordon_result_v1';
+  const SKEY = 'oo_scores_v2';
+  const DONE_KEY = (id)=>`game_done_${id}`;
+  const RESULT_KEY = (id)=>`game_result_${id}`;
 
   const $ = (q)=>document.querySelector(q);
   const uriScoreEl = $('#uriScore');
@@ -146,72 +187,130 @@
   }
   renderScores();
 
+  // Construir tiles (sin controles dentro)
+  const tiles = $('#tiles');
+  function renderTiles(){
+    tiles.innerHTML = '';
+    GAMES.forEach(g=>{
+      const completed = !!localStorage.getItem(DONE_KEY(g.id));
+      const el = document.createElement('article');
+      el.className = 'card' + (completed ? ' completed' : '');
+      el.setAttribute('data-id', g.id);
+      el.innerHTML = `
+        <h3>${g.category}</h3>
+        <span class="title">${g.title}</span>
+        <p>${g.summary}</p>
+        ${completed ? `<div class="badge"><span class="check">✓</span>Completado</div>`:''}
+      `;
+      el.addEventListener('click', ()=>openDetail(g.id));
+      tiles.appendChild(el);
+    });
+  }
+  renderTiles();
+
   // Reset global
   $('#resetAll').addEventListener('click', ()=>{
     if(!confirm('¿Reiniciar marcador global?')) return;
     saveScores({uri:0,olga:0});
-    localStorage.removeItem(CKEY);
-    // limpiar estado de la carta
-    document.querySelectorAll('input[name="cordonWinner"]').forEach(i=>{
-      i.checked=false; i.disabled=false;
-    });
-    $('#cordonDone').style.display='none';
-    $('#card-cordon').classList.remove('success');
+    // NO tocamos los completados de cada juego
     renderScores();
   });
 
-  // --- lógica del duelo "Cortar el cordón" ---
-  function markCordonDone(){
-    $('#card-cordon').classList.add('success');
-    $('#cordonDone').style.display='flex';
-    document.querySelectorAll('input[name="cordonWinner"]').forEach(i=>i.disabled=true);
+  // --- Modal detalle ---
+  const backdrop = $('#backdrop');
+  const closeBtn = $('#closeDetail');
+  closeBtn.addEventListener('click', closeDetail);
+  backdrop.addEventListener('click', (e)=>{ if(e.target===backdrop) closeDetail(); });
+
+  function openDetail(id){
+    const g = GAMES.find(x=>x.id===id);
+    if(!g) return;
+    $('#detailCategory').textContent = g.category;
+    $('#detailTitle').textContent = g.title;
+    $('#detailPrep').textContent = g.prep;
+    $('#detailInstr').textContent = g.instructions;
+
+    // Scoring controls per type
+    const sc = $('#scoringControls');
+    const hint = $('#scoringHint');
+    sc.innerHTML = '';
+    const done = !!localStorage.getItem(DONE_KEY(g.id));
+    const prev = localStorage.getItem(RESULT_KEY(g.id)); // 'URI'|'OLGA'|'DRAW' for duel, 'DONE' for teams
+
+    if(g.type==='duel'){
+      hint.textContent = 'El punto global se suma al guardar (empate no suma).';
+      const wrap = document.createElement('div');
+      wrap.className = 'controls';
+      wrap.innerHTML = `
+        <label class="choice"><input type="radio" name="winner" value="URI"> URI gana</label>
+        <label class="choice"><input type="radio" name="winner" value="OLGA"> OLGA gana</label>
+        <label class="choice"><input type="radio" name="winner" value="DRAW"> Empate</label>
+        <button class="btn primary" id="saveResult">Guardar</button>
+        <button class="btn ghost" id="clearResult">Quitar resultado</button>
+      `;
+      sc.appendChild(wrap);
+
+      if(prev){
+        const input = sc.querySelector(`input[value="${prev}"]`);
+        if(input) input.checked = true;
+      }
+
+      sc.querySelector('#saveResult').onclick = ()=>{
+        const sel = sc.querySelector('input[name="winner"]:checked');
+        if(!sel){ alert('Selecciona un resultado.'); return; }
+        const val = sel.value;
+        // sumar solo si no existía antes
+        if(!prev){
+          const s = loadScores();
+          if(val==='URI') s.uri += 1;
+          else if(val==='OLGA') s.olga += 1;
+          saveScores(s); renderScores();
+        }
+        localStorage.setItem(RESULT_KEY(g.id), val);
+        localStorage.setItem(DONE_KEY(g.id), '1');
+        renderTiles();
+        alert('Resultado guardado.');
+      };
+      sc.querySelector('#clearResult').onclick = ()=>{
+        if(!prev){ alert('Este juego no tenía resultado.'); return; }
+        if(!confirm('¿Quitar resultado y ajustar marcador?')) return;
+        const s = loadScores();
+        if(prev==='URI' && s.uri>0) s.uri -= 1;
+        if(prev==='OLGA' && s.olga>0) s.olga -= 1;
+        saveScores(s); renderScores();
+        localStorage.removeItem(RESULT_KEY(g.id));
+        localStorage.removeItem(DONE_KEY(g.id));
+        renderTiles();
+        openDetail(id); // recargar vista limpia
+      };
+    }else{
+      hint.textContent = 'Este juego es por equipos y no suma al marcador global.';
+      const wrap = document.createElement('div');
+      wrap.className = 'controls';
+      wrap.innerHTML = `
+        <button class="btn primary" id="markDone">${done?'Marcar como NO completado':'Marcar como completado'}</button>
+      `;
+      sc.appendChild(wrap);
+      sc.querySelector('#markDone').onclick = ()=>{
+        if(done){
+          localStorage.removeItem(DONE_KEY(g.id));
+          localStorage.removeItem(RESULT_KEY(g.id));
+        }else{
+          localStorage.setItem(DONE_KEY(g.id),'1');
+          localStorage.setItem(RESULT_KEY(g.id),'DONE');
+        }
+        renderTiles();
+        openDetail(id);
+      };
+    }
+
+    backdrop.style.display = 'flex';
+    backdrop.setAttribute('aria-hidden','false');
   }
-  // cargar estado previo
-  (function initCordon(){
-    const prev = localStorage.getItem(CKEY);
-    if(prev){
-      const val = prev;
-      const input = document.querySelector(`input[name="cordonWinner"][value="${val}"]`);
-      if(input){ input.checked=true; markCordonDone(); }
-    }
-  })();
-
-  $('#saveCordon').addEventListener('click', ()=>{
-    const sel = document.querySelector('input[name="cordonWinner"]:checked');
-    if(!sel){ alert('Selecciona un resultado.'); return; }
-    const val = sel.value; // URI | OLGA | DRAW
-    const s = loadScores();
-    if(!localStorage.getItem(CKEY)){ // solo sumar la primera vez
-      if(val === 'URI') s.uri += 1;
-      if(val === 'OLGA') s.olga += 1;
-      // Empate no suma
-      saveScores(s);
-      renderScores();
-    }
-    localStorage.setItem(CKEY, val);
-    markCordonDone();
-  });
-
-  $('#clearCordon').addEventListener('click', ()=>{
-    const prev = localStorage.getItem(CKEY);
-    if(!prev) { 
-      document.querySelectorAll('input[name="cordonWinner"]').forEach(i=>i.checked=false);
-      return; 
-    }
-    if(!confirm('¿Quitar resultado y ajustar marcador?')) return;
-    // revertir suma si no fue empate
-    const s = loadScores();
-    if(prev === 'URI' && s.uri>0) s.uri -= 1;
-    if(prev === 'OLGA' && s.olga>0) s.olga -= 1;
-    saveScores(s); renderScores();
-
-    localStorage.removeItem(CKEY);
-    document.querySelectorAll('input[name="cordonWinner"]').forEach(i=>{
-      i.checked=false; i.disabled=false;
-    });
-    $('#card-cordon').classList.remove('success');
-    $('#cordonDone').style.display='none';
-  });
+  function closeDetail(){
+    backdrop.style.display = 'none';
+    backdrop.setAttribute('aria-hidden','true');
+  }
 </script>
 </body>
 </html>
