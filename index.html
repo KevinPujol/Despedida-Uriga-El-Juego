@@ -53,7 +53,7 @@
   .chip.active{background: color-mix(in srgb, var(--primary) 10%, white); border-color: color-mix(in srgb, var(--primary) 25%, white)}
 
   /* Section */
-  h2.section{font-size:14px; text-transform:uppercase; letter-spacing:.12em; color:var(--muted); margin:10px 4px 10px}
+  h2.section{font-size:14px; text-transform:uppercase; letter-spacing:.12em; color:#6a746f; margin:10px 4px 10px}
 
   /* Card tiles */
   .grid{display:grid;grid-template-columns:1fr;gap:12px}
@@ -81,20 +81,21 @@
   .section-block h4{margin:0 0 6px;font-size:14px;color:#2e4b3d}
   .controls{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
   .controls.stack{flex-direction:column; align-items:stretch}
+  .controls.center{justify-content:center}
   .choice{border:1px solid var(--border); border-radius:10px; padding:10px 12px; background:#fff; display:flex; align-items:center; gap:8px; cursor:pointer}
   .choice input{accent-color:var(--primary)}
   .btn{border:none;border-radius:10px;padding:10px 14px;font-weight:700;cursor:pointer}
   .btn.primary{background:var(--primary);color:#fff}
   .btn.ghost{background:#fff;border:1px solid var(--border)}
   .btn.danger{background: #fff; color: var(--danger); border:1px solid color-mix(in srgb, var(--danger) 30%, white)}
-  .hint{font-size:12px;color:#2f3b36}
+  .hint{font-size:12px;color:#2f3b36; display:none;} /* ocultamos el texto de ayuda como pediste */
   .divider{height:1px;background:var(--border);margin:12px 0}
   .counter{display:flex;align-items:center;gap:8px}
   .counter .score{min-width:28px;text-align:center;font-weight:800}
   footer{margin-top:24px;text-align:center;color:#2f3b36}
 
   @media(max-width:560px){
-    .controls.responsive{flex-direction:column; align-items:stretch}
+    .controls.responsive{flex-direction:column; align-items:center}
     .close{padding:12px 14px}
     .grid{gap:10px}
     .card{padding:14px}
@@ -113,8 +114,8 @@
         <div class="bar"><span id="progressBar"></span></div>
       </div>
       <div class="scorebar" aria-live="polite">
-        <span class="pill uri"><span class="name">URI</span> <span class="score" id="uriScore">0</span> <span class="lead" id="uriLead"></span></span>
-        <span class="pill olga"><span class="name">OLGA</span> <span class="score" id="olgaScore">0</span> <span class="lead" id="olgaLead"></span></span>
+        <span class="pill uri"><span class="name">Uri</span> <span class="score" id="uriScore">0</span> <span class="lead" id="uriLead"></span></span>
+        <span class="pill olga"><span class="name">Olga</span> <span class="score" id="olgaScore">0</span> <span class="lead" id="olgaLead"></span></span>
         <button class="btn-reset" id="resetAll" type="button">Reset</button>
       </div>
     </header>
@@ -171,7 +172,6 @@
   // - versus: Uri/Olga/Empate y suma al global al guardar
   // - ritual: sin puntos; sólo marcar completado
 
-  // Icons por categoría
   const CAT_ICON = {
     'Emancipación':'⚔️',
     'Introducción de Olga al clan':'🧪',
@@ -246,7 +246,7 @@
   ];
 
   // --- Persistencia ---
-  const SKEY = 'oo_scores_v6'; // nueva versión por cambios de UI
+  const SKEY = 'oo_scores_v7';
   const DONE_KEY = (id)=>`game_done_${id}`;
   const RESULT_KEY = (id)=>`game_result_${id}`; // 'URI'|'OLGA'|'DRAW'|'DONE'
   const PLOCAL_KEY = (id)=>`game_local_${id}`;  // guarda {u:?, o:?} para type points
@@ -295,7 +295,7 @@
       el.className = 'card' + (completed ? ' completed' : '');
       el.setAttribute('data-id', g.id);
       el.innerHTML = `
-        <div class="meta-row"><span class="icon">${CAT_ICON[g.category]||'🎲'}</span><span>${String(idx+1).padStart(2,'0')} · ${g.category}</span></div>
+        <div class="meta-row"><span class="icon">${(CAT_ICON[g.category]||'🎲')}</span><span>${String(idx+1).padStart(2,'0')} · ${g.category}</span></div>
         <span class="title">${g.title}</span>
         <p>${g.summary}</p>
         ${completed ? `<div class="badge"><span class="check">✓</span>Completado</div>`:''}
@@ -384,23 +384,22 @@
     const prev = localStorage.getItem(RESULT_KEY(g.id)); // 'URI'|'OLGA'|'DRAW' or 'DONE'
 
     if(g.type==='points'){
-      hint.textContent = 'Marcador local: el que tenga más gana 1 global; si empatan, +1 global a ambos.';
-
+      hint.style.display = 'none'; // ocultar siempre
       const {u, o} = loadLocal(g.id);
       const wrap = document.createElement('div');
-      wrap.className = 'controls responsive';
+      wrap.className = 'controls responsive center';
       wrap.innerHTML = `
-        <div class="counter"><strong>URI</strong>
+        <div class="counter"><strong>Uri</strong>
           <button class="btn ghost" id="uMinus">−1</button>
           <span class="score" id="uScore">${u}</span>
           <button class="btn primary" id="uPlus">+1</button>
         </div>
-        <div class="counter"><strong>OLGA</strong>
+        <div class="counter"><strong>Olga</strong>
           <button class="btn ghost" id="oMinus">−1</button>
           <span class="score" id="oScore">${o}</span>
           <button class="btn primary" id="oPlus">+1</button>
         </div>
-        <div class="controls stack">
+        <div class="controls stack" style="width:100%;max-width:420px">
           <button class="btn ghost" id="resetLocal">Reset rondas</button>
           <button class="btn primary" id="finalize">Finalizar juego</button>
           <button class="btn danger" id="clearResult">Quitar resultado</button>
@@ -444,7 +443,7 @@
         localStorage.setItem(DONE_KEY(g.id), '1');
         setDisabled(true);
         renderTiles();
-        showToast(`Resultado: ${outcome==='DRAW'?'Empate (+1 a ambos)':outcome+' (+1 global)'}`);
+        showToast(`Resultado: ${outcome==='DRAW'?'Empate (+1 a ambos)':(outcome==='URI'?'Uri':'Olga')+' (+1 global)'}`);
       };
 
       sc.querySelector('#clearResult').onclick = ()=>{
@@ -464,21 +463,22 @@
       };
 
     } else if(g.type==='versus'){
-      hint.textContent = 'Este juego SÍ suma al marcador global al guardar.';
+      hint.style.display = 'none'; // ocultar siempre
 
       const wrap = document.createElement('div');
-      wrap.className = 'controls responsive';
+      wrap.className = 'controls responsive center';
       wrap.innerHTML = `
-        <label class="choice"><input type="radio" name="winner" value="URI"> URI gana</label>
-        <label class="choice"><input type="radio" name="winner" value="OLGA"> OLGA gana</label>
+        <label class="choice"><input type="radio" name="winner" value="URI"> Uri gana</label>
+        <label class="choice"><input type="radio" name="winner" value="OLGA"> Olga gana</label>
         <label class="choice"><input type="radio" name="winner" value="DRAW"> Empate</label>
-        <div class="controls stack">
+        <div class="controls stack" style="width:100%;max-width:420px">
           <button class="btn primary" id="saveResult">Guardar</button>
           <button class="btn danger" id="clearResult">Quitar resultado</button>
         </div>
       `;
       sc.appendChild(wrap);
 
+      const prev = localStorage.getItem(RESULT_KEY(g.id));
       if(prev){
         const input = sc.querySelector(`input[value="${prev}"]`);
         if(input) input.checked = true;
@@ -488,6 +488,7 @@
         const sel = sc.querySelector('input[name="winner"]:checked');
         if(!sel){ alert('Selecciona un resultado.'); return; }
         const val = sel.value;
+        const prev = localStorage.getItem(RESULT_KEY(g.id));
         if(!prev){
           const s = loadScores();
           if(val==='URI') s.uri += 1;
@@ -502,6 +503,7 @@
       };
 
       sc.querySelector('#clearResult').onclick = ()=>{
+        const prev = localStorage.getItem(RESULT_KEY(g.id));
         if(!prev){ alert('Este juego no tenía resultado.'); return; }
         if(!confirm('¿Quitar resultado y ajustar marcador global?')) return;
         const s = loadScores();
@@ -517,9 +519,9 @@
       };
 
     } else if(g.type==='ritual'){
-      hint.textContent = 'Ritual sin puntos.';
+      hint.style.display = 'none'; // ocultar siempre
       const wrap = document.createElement('div');
-      wrap.className = 'controls stack';
+      wrap.className = 'controls stack center';
       wrap.innerHTML = `
         <button class="btn primary" id="markDone">${done?'Marcar como NO completado':'Marcar como completado'}</button>
       `;
