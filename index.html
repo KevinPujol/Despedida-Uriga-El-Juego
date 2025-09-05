@@ -1,574 +1,62 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Olga & Oriol — Juegos</title>
-<style>
-  :root{
-    --bg:#f6f4f2;
-    --card:#ffffff;
-    --muted:#6c7a72;
-    --primary:#2f6f5e;
-    --pill:#e6efe9;
-    --success-bg:#e8f7ec;
-    --success:#1c7c3a;
-    --border:#e7e3dd;
-    --shadow: 0 6px 16px rgba(0,0,0,.06);
-    --radius:14px;
-
-    --uri:#2e7d32;
-    --olga:#2f6f8a;
-    --danger:#c0392b;
-    --toast:#1f2a27;
-  }
-  *{box-sizing:border-box}
-  html,body{margin:0;background:var(--bg);color:#2a2a2a;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif}
-  .wrap{max-width:980px;margin:0 auto;padding:20px 16px 28px}
-
-  /* Header */
-  header{display:flex;flex-direction:column;align-items:center;gap:12px;margin-top:4px;margin-bottom:10px}
-  .logo{height:56px; width:auto; display:block}
-  .scorebar{display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap}
-  .pill{background:var(--pill); color:#fff; padding:10px 16px; border-radius:999px; font-weight:800; letter-spacing:.3px; display:inline-flex; align-items:center; gap:10px; box-shadow:var(--shadow)}
-  .pill .name{opacity:.9; font-size:13px; letter-spacing:.08em}
-  .pill.uri{background: color-mix(in srgb, var(--uri) 18%, white)}
-  .pill.uri .score{color:var(--uri)}
-  .pill.olga{background: color-mix(in srgb, var(--olga) 18%, white)}
-  .pill.olga .score{color:var(--olga)}
-  .pill .score{font-size:18px}
-  .lead{font-size:16px; font-weight:800}
-  .btn-reset{border:none;background:#fff;border:1px solid var(--border);padding:8px 14px;border-radius:999px;cursor:pointer}
-  .btn-reset:hover{filter:brightness(.98)}
-
-  /* Progress */
-  .progress{width:100%;max-width:560px;margin:0 auto 6px}
-  .progress .label{display:flex;justify-content:space-between; font-size:12px; color:var(--muted); margin:8px 4px}
-  .bar{height:8px;background:#e9ecec;border-radius:999px;overflow:hidden}
-  .bar > span{display:block;height:100%;width:0;background: color-mix(in srgb, var(--primary) 45%, white); border-radius:999px; transition:width .35s ease}
-
-  /* Filters */
-  .filters{display:flex; gap:8px; justify-content:center; margin:10px 0 6px; flex-wrap:wrap}
-  .chip{border:1px solid var(--border); background:#fff; padding:8px 12px; border-radius:999px; cursor:pointer; font-weight:600; color:#385247}
-  .chip.active{background: color-mix(in srgb, var(--primary) 10%, white); border-color: color-mix(in srgb, var(--primary) 25%, white)}
-
-  /* Section */
-  h2.section{font-size:14px; text-transform:uppercase; letter-spacing:.12em; color:#6a746f; margin:10px 4px 10px}
-
-  /* Card tiles */
-  .grid{display:grid;grid-template-columns:1fr;gap:12px}
-  @media(min-width:720px){.grid{grid-template-columns:1fr 1fr}}
-  @media(min-width:1060px){.grid{grid-template-columns:1fr 1fr 1fr}}
-  .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px;cursor:pointer;transition:transform .06s ease}
-  .card:hover{transform:translateY(-2px)}
-  .meta-row{display:flex;align-items:center;gap:8px;margin:0 0 6px;color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.08em}
-  .meta-row .icon{font-size:16px}
-  .card .title{display:block; font-weight:800; color:#2e4b3d; text-decoration:none; margin-bottom:6px; font-size:16px}
-  .card p{margin:0; line-height:1.35; color:#2a2a2a}
-  .card.completed{background:var(--success-bg); border-color:#cfead7}
-  .badge{display:inline-flex;align-items:center;gap:6px;margin-top:10px;color:var(--success);font-weight:700}
-  .badge .check{width:18px;height:18px;border-radius:4px;border:2px solid var(--success);display:inline-flex;align-items:center;justify-content:center;font-size:14px}
-
-  /* Modal */
-  .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;align-items:center;justify-content:center;padding:16px;z-index:1000}
-  .modal{background:#fff;max-width:720px;width:100%;border-radius:16px;border:1px solid var(--border);box-shadow:var(--shadow)}
-  .modal header{flex-direction:row;align-items:flex-start;justify-content:space-between;margin:0;padding:16px 16px 0}
-  .modal .content{padding:0 16px 16px}
-  .modal h1{font-size:20px;margin:2px 0 6px}
-  .modal .meta{color:var(--muted);font-size:13px;margin-bottom:8px}
-  .close{background:#fff;border:1px solid var(--border);border-radius:10px;padding:10px 12px;cursor:pointer}
-  .section-block{background:#fff;border:1px dashed var(--border);border-radius:12px;padding:12px;margin:8px 0}
-  .section-block h4{margin:0 0 6px;font-size:14px;color:#2e4b3d}
-  .controls{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
-  .controls.stack{flex-direction:column; align-items:stretch}
-  .controls.center{justify-content:center}
-  .choice{border:1px solid var(--border); border-radius:10px; padding:10px 12px; background:#fff; display:flex; align-items:center; gap:8px; cursor:pointer}
-  .choice input{accent-color:var(--primary)}
-  .btn{border:none;border-radius:10px;padding:10px 14px;font-weight:700;cursor:pointer}
-  .btn.primary{background:var(--primary);color:#fff}
-  .btn.ghost{background:#fff;border:1px solid var(--border)}
-  .btn.danger{background: #fff; color: var(--danger); border:1px solid color-mix(in srgb, var(--danger) 30%, white)}
-  .hint{font-size:12px;color:#2f3b36; display:none;} /* ocultamos el texto de ayuda como pediste */
-  .divider{height:1px;background:var(--border);margin:12px 0}
-  .counter{display:flex;align-items:center;gap:8px}
-  .counter .score{min-width:28px;text-align:center;font-weight:800}
-  footer{margin-top:24px;text-align:center;color:#2f3b36}
-
-  @media(max-width:560px){
-    .controls.responsive{flex-direction:column; align-items:center}
-    .close{padding:12px 14px}
-    .grid{gap:10px}
-    .card{padding:14px}
-  }
-
-  /* Toast */
-  #toast{position:fixed;left:50%;transform:translateX(-50%);bottom:22px;background:var(--toast);color:#fff;padding:10px 14px;border-radius:999px;display:none;z-index:1200;box-shadow:var(--shadow)}
-
-.toast {
-  position: fixed;
-  bottom: 28px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #2a2a2a;
-  color: #fff;
-  padding: 10px 18px;
-  border-radius: 12px;
-  font-size: 13px;
-  line-height: 1.3;
-  max-width: 90%;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  z-index: 2000;
-}
-
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Olga & Oriol — Juegos</title>
+  <style>
+    body { font-family: sans-serif; background:#fafafa; margin:0; padding:0; }
+    header { text-align:center; margin:20px 0; }
+    header img { height:72px; } /* logo más grande */
+    .scoreboard { text-align:center; margin:10px 0; }
+    .tiles { display:flex; flex-direction:column; gap:10px; padding:10px; }
+    .tile { background:white; border-radius:10px; padding:15px; box-shadow:0 1px 3px rgba(0,0,0,.1); cursor:pointer; }
+    .tile .meta-row { font-size:12px; color:#666; margin-bottom:5px; }
+    .tile .title { font-size:16px; font-weight:bold; }
+    .badge { margin-top:5px; font-size:12px; color:green; }
+  </style>
 </head>
 <body>
-  <div class="wrap">
-    <header>
-      <img src="logo.png" alt="Olga & Oriol — 04.10.2025" class="logo" />
-      <div class="progress">
-        <div class="label"><span id="progressText">0 de 0 completados</span><span id="filterHint">desliza para cambiar filtro</span></div>
-        <div class="bar"><span id="progressBar"></span></div>
-      </div>
-      <div class="scorebar" aria-live="polite">
-        <span class="pill uri"><span class="name">Uri</span> <span class="score" id="uriScore">0</span> <span class="lead" id="uriLead"></span></span>
-        <span class="pill olga"><span class="name">Olga</span> <span class="score" id="olgaScore">0</span> <span class="lead" id="olgaLead"></span></span>
-        <button class="btn-reset" id="resetAll" type="button">Reset</button>
-      </div>
-    </header>
-
-    <div class="filters">
-      <button class="chip active" data-filter="all">Todos</button>
-      <button class="chip" data-filter="pending">Pendientes</button>
-      <button class="chip" data-filter="done">Completados</button>
+  <header>
+    <img src="logo.png" alt="logo">
+    <div class="scoreboard">
+      <span>Uri 0</span> - <span>Olga 0</span>
     </div>
-
-    <h2 class="section">Juegos</h2>
-
-    <div class="grid" id="tiles"></div>
-
-    <footer>Hecho con ❤️ para Olga &amp; Oriol.</footer>
-  </div>
-
-  <!-- Modal detalle -->
-  <div class="modal-backdrop" id="backdrop" role="dialog" aria-modal="true" aria-hidden="true">
-    <div class="modal">
-      <header>
-        <div>
-          <div class="meta" id="detailCategory">Categoría</div>
-          <h1 id="detailTitle">Título</h1>
-        </div>
-        <button class="close" id="closeDetail" type="button">Cerrar</button>
-      </header>
-      <div class="content">
-        <div class="section-block">
-          <h4>Preparación</h4>
-          <div id="detailPrep"></div>
-        </div>
-        <div class="section-block">
-          <h4>Instrucciones</h4>
-          <div id="detailInstr"></div>
-        </div>
-        <div class="divider"></div>
-        <div class="section-block" id="scoringBlock">
-          <h4>Puntuación</h4>
-          <div id="scoringControls" class="responsive"></div>
-          <div class="hint" id="scoringHint"></div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div id="toast" role="status" aria-live="polite"></div>
-
+  </header>
+  <main>
+    <div class="tiles" id="tiles"></div>
+  </main>
 <script>
-(function(){
-  // TIPOS:
-  // - points: marcador local (Uri/Olga); al finalizar:
-  //           mayor gana +1 global; empate +1 global a ambos
-  // - versus: Uri/Olga/Empate y suma al global al guardar
-  // - ritual: sin puntos; sólo marcar completado
+const juegos = [
+  {id:'madrecdotas', category:'Emancipación', title:'Las Madrecdotas', emoji:'⚖️'},
+  {id:'cordon', category:'Emancipación', title:'Cortar el cordón (doble Human Knot)', emoji:'🪢'},
+  {id:'microbiotas', category:'Introducción de Olga al clan', title:'Banco de Microbiotas', emoji:'⚗️'},
+  {id:'tiktok', category:'Introducción de Olga al clan', title:'Try Not to Laugh — TikTok (QR)', emoji:'🕺'},
+  {id:'cata', category:'Rutina en Barcelona', title:'Cata de bebidas (a ciegas)', emoji:'🥤'},
+  {id:'siameses', category:'Fusión en Uriga', title:'Mini-retos a dos manos', emoji:'🤝'},
+  {id:'musical', category:'Fusión en Uriga', title:'Vivir en un musical — Escenas', emoji:'🎤'},
+  {id:'yincana', category:'UriGPT', title:'Yincana de fotos — Multiagente Edition', emoji:'📸'},
+  {id:'recogida', category:'Vida en el Palacete', title:'Recogida a ciegas', emoji:'🙈'},
+  {id:'nofoto', category:'Vida en el Palacete', title:'No salgas en la foto (cucarachas)', emoji:'🪳'},
+  {id:'riego', category:'Vida en el Palacete', title:'Riego Milagroso — Pasa el agua atrás', emoji:'💧'},
+  {id:'sprite', category:'Bonus Final', title:'Exorcismo de Maitreya', emoji:'🫧'}
+];
 
-  const CAT_ICON = {
-    'Emancipación':'⚔️',
-    'Introducción de Olga al clan':'🧪',
-    'Rutina en Barcelona':'🍹',
-    'Fusión en Uriga':'🤝',
-    'UriGPT':'📸',
-    'Vida en el Palacete':'🏰',
-    'Bonus Final':'✨'
-  };
-
-  const GAMES = [
-    { id:'madrecdotas', category:'Emancipación', title:'Las Madrecdotas', emoji:'⚖️',
-      summary:'Anécdotas del clan. Uri y Olga adivinan por separado.', type:'points',
-      prep:'Caja con anécdotas impresas y autor indicado.',
-      instructions:'El MC lee una anécdota. Uri y Olga dicen de quién es (sin hablar entre ellos). Asigna +1 local al que acierte.'
-    },
-    { id:'cordon', category:'Emancipación', title:'Cortar el cordón (doble Human Knot)', emoji:'🪢',
-      summary:'Dos nudos humanos guiados: Uri vs Olga. Se decide ganador o empate.', type:'versus',
-      prep:'Formar 2 grupos del mismo tamaño. Manos a personas no adyacentes.',
-      instructions:'Sin soltarse, seguir a su guía para deshacer el nudo. Se valora rapidez/claridad/diversión. Resultado: Uri / Olga / Empate (suma al marcador global).'
-    },
-    { id:'microbiotas', category:'Introducción de Olga al clan', title:'Banco de Microbiotas', emoji:'⚗️',
-      summary:'A ciegas, tocar y adivinar contenidos. Risas y agua 💦.', type:'points',
-      prep:'Tuppers opacos numerados; antifaces; toallitas; pistola(s) de agua.',
-      instructions:'Con antifaz, tocan 30s el tupper. Describen y adivinan. Suma +1 local a quien acierte.'
-    },
-    { id:'tiktok', category:'Introducción de Olga al clan', title:'Try Not to Laugh — TikTok (QR)', emoji:'🕺',
-      summary:'Agua en la boca. Performances guiadas por vídeos.', type:'points',
-      prep:'Playlist/QR, móvil/altavoz, vasos, cubo/toalla. Zonas de performers y aguas.',
-      instructions:'Duelos: si alguien ríe/escupe primero, +1 local para el otro. Al final, el mayor gana 1 global; empate +1 a ambos.'
-    },
-    { id:'cata', category:'Rutina en Barcelona', title:'Cata de bebidas (a ciegas)', emoji:'🥤',
-      summary:'Caja A–F. 5 bebidas normales + 1 picante (se añaden más).', type:'versus',
-      prep:'Caja opaca con pajitas; surtido de bebidas; pajitas nuevas por turno.',
-      instructions:'Por turnos eligen un agujero y beben. Normales siguen; picante elimina. Al final se declara Uri / Olga / Empate y suma al marcador global.'
-    },
-    { id:'siameses', category:'Fusión en Uriga', title:'Mini‑retos a dos manos', emoji:'🤝',
-      summary:'Tres tareas cooperativas con una mano cada uno. Sin sudaderas.', type:'ritual',
-      prep:'Cinta para unir antebrazo/cintura; mesa; kits: hoja A4; pack de envoltorio (papel+celo máx 3+tijeras sin punta+objeto); globo+rotulador.',
-      instructions:'(A) Avión que cruce línea/5m; (B) Envolver con máx. 3 trozos de celo; (C) Inflar, atar y dibujar cara en un globo. Reglas: una mano cada uno; sin dientes/rodillas. Al final, se les ata una mano y queda una libre cada uno. Sin puntos.'
-    },
-    { id:'musical', category:'Fusión en Uriga', title:'Vivir en un musical — Escenas', emoji:'🎤',
-      summary:'Impro musical de escenas del lore. Todo cantado.', type:'ritual',
-      prep:'Lista de 5–8 escenas (sobres o QR); altavoz.',
-      instructions:'Cada equipo saca escena al azar. 1 min de preparación + 60–90s de número musical. Humor cariñoso, sin nada gráfico. Sin puntos.'
-    },
-    { id:'yincana', category:'UriGPT', title:'Yincana de fotos — Multiagente Edition', emoji:'📸',
-      summary:'Fotos recreando roles de Uri con condiciones extra.', type:'versus',
-      prep:'1 móvil por equipo. Tiempo total: 12–15 min.',
-      instructions:'Cada foto muestra un rol (cocinero, motorista, terapeuta…). Todos salen y cumplen 1 condición (p.ej., nadie tocando el suelo, todos conectados, alguien escondido, cara exagerada). Se decide Uri / Olga / Empate y suma al global.'
-    },
-    { id:'recogida', category:'Vida en el Palacete', title:'Recogida a ciegas', emoji:'🙈',
-      summary:'Campo con piezas y “minas” blandas. Un ciego por equipo.', type:'versus',
-      prep:'Delimitar campo, piezas repartidas, obstáculos seguros, 2 antifaces.',
-      instructions:'1 ciego por equipo entra al campo guiado por voz. +1 por pieza en base. Al final, Uri / Olga / Empate y suma al marcador global.'
-    },
-    { id:'nofoto', category:'Vida en el Palacete', title:'No salgas en la foto (cucarachas)', emoji:'🪳',
-      summary:'Fotógrafo a ciegas intenta “capturar cucarachas”.', type:'versus',
-      prep:'Delimitar salón; móvil/cámara; desactivar flash/sonidos; antifaz.',
-      instructions:'Ronda 2 min: el fotógrafo dispara guiado por ruidos/cebos. Se revisa galería: quien salga nítido eliminado. Resultado global: Uri / Olga / Empate y suma al global.'
-    },
-    { id:'riego', category:'Vida en el Palacete', title:'Riego Milagroso — Pasa el agua atrás', emoji:'💧',
-      summary:'Cadena de agua sin mirar hasta llenar el tupper final.', type:'versus',
-      prep:'Dos filas por equipos, botellas, recipientes individuales y tupper final (exterior o suelo antideslizante).',
-      instructions:'El primero carga ~1/4 y vierte hacia atrás sin girarse. 2–3 min o hasta 500 ml. Uri / Olga / Empate y suma al global.'
-    },
-    { id:'sprite', category:'Bonus Final', title:'Exorcismo de Maitreya', emoji:'🫧',
-      summary:'Sprite 330 ml. Aguantar sin eructar en duelos.', type:'points',
-      prep:'Equipos igualados. Sprite fría en vasos iguales; toallas; 45–60s por ronda.',
-      instructions:'Sale 1 por equipo y beben a la vez. Si alguien eructa, +1 local para el otro. Al final: mayor gana 1 global; empate +1 a ambos.'
-    }
-  ];
-
-  // --- Persistencia ---
-  const SKEY = 'oo_scores_v7';
-  const DONE_KEY = (id)=>`game_done_${id}`;
-  const RESULT_KEY = (id)=>`game_result_${id}`; // 'URI'|'OLGA'|'DRAW'|'DONE'
-  const PLOCAL_KEY = (id)=>`game_local_${id}`;  // guarda {u:?, o:?} para type points
-
-  const $ = (q)=>document.querySelector(q);
-  const uriScoreEl = $('#uriScore');
-  const olgaScoreEl = $('#olgaScore');
-  const progressText = $('#progressText');
-  const progressBar = $('#progressBar');
-
-  function loadScores(){
-    try{
-      const s = JSON.parse(localStorage.getItem(SKEY) || '{"uri":0,"olga":0}');
-      return {uri:+s.uri||0, olga:+s.olga||0};
-    }catch{ return {uri:0, olga:0}; }
-  }
-  function saveScores({uri,olga}){
-    localStorage.setItem(SKEY, JSON.stringify({uri,olga}));
-  }
-  function renderScores(){
-    const s = loadScores();
-    uriScoreEl.textContent = s.uri;
-    olgaScoreEl.textContent = s.olga;
-    const uriLead = $('#uriLead'); const olgaLead = $('#olgaLead');
-    uriLead.textContent = s.uri> s.olga ? '↑' : (s.uri<s.olga ? '↓' : ' ');
-    olgaLead.textContent = s.olga> s.uri ? '↑' : (s.uri>s.olga ? '↓' : ' ');
-  }
-  renderScores();
-
-  // Tiles + filtros + progreso
-  const tiles = $('#tiles');
-  let FILTER = 'all';
-  function completedCount(){ return GAMES.filter(g=>!!localStorage.getItem(DONE_KEY(g.id))).length; }
-  function renderProgress(){
-    const done = completedCount(); const total = GAMES.length;
-    progressText.textContent = `${done} de ${total} completados`;
-    progressBar.style.width = `${(done/total)*100}%`;
-  }
-  function renderTiles(){
-    tiles.innerHTML = '';
-    GAMES.forEach((g, idx)=>{
-      const completed = !!localStorage.getItem(DONE_KEY(g.id));
-      if(FILTER==='pending' && completed) return;
-      if(FILTER==='done' && !completed) return;
-      const el = document.createElement('article');
-      el.className = 'card' + (completed ? ' completed' : '');
-      el.setAttribute('data-id', g.id);
-      el.innerHTML = `
-        <div class="meta-row"><span class="icon">${(CAT_ICON[g.category]||'🎲')}</span><span>${String(idx+1).padStart(2,'0')} · ${g.category}</span></div>
-        <span class="title">${g.title}</span>
-        
-        ${completed ? `<div class="badge"><span class="check">✓</span>Completado</div>`:''}
-      `;
-      el.addEventListener('click', ()=>openDetail(g.id));
-      tiles.appendChild(el);
-    });
-    renderProgress();
-  }
-  renderTiles();
-
-  // Filtros
-  document.querySelectorAll('.chip').forEach(ch=>{
-    ch.addEventListener('click', ()=>{
-      document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
-      ch.classList.add('active');
-      FILTER = ch.dataset.filter;
-      renderTiles();
-    });
+function renderTiles() {
+  const tiles = document.getElementById('tiles');
+  tiles.innerHTML = '';
+  juegos.forEach((g,idx)=>{
+    const el = document.createElement('div');
+    el.className = 'tile';
+    el.innerHTML = `
+      <div class="meta-row">${g.category}</div>
+      <div class="title">${String(idx+1).padStart(2,'0')} ${g.emoji} ${g.title}</div>
+    `;
+    tiles.appendChild(el);
   });
-
-  // Swipe para cambiar filtro (mobile)
-  let touchStartX = null;
-  document.addEventListener('touchstart', e=>{ if(e.touches.length===1) touchStartX = e.touches[0].clientX; }, {passive:true});
-  document.addEventListener('touchend', e=>{
-    if(touchStartX===null) return;
-    const dx = e.changedTouches[0].clientX - touchStartX;
-    if(Math.abs(dx)>60){
-      const order = ['all','pending','done'];
-      let idx = order.indexOf(FILTER);
-      idx = dx<0 ? Math.min(order.length-1, idx+1) : Math.max(0, idx-1);
-      FILTER = order[idx];
-      document.querySelectorAll('.chip').forEach(c=>c.classList.toggle('active', c.dataset.filter===FILTER));
-      renderTiles();
-      showToast(`Filtro: ${FILTER==='all'?'Todos': FILTER==='pending'?'Pendientes':'Completados'}`);
-    }
-    touchStartX = null;
-  }, {passive:true});
-
-  // Reset global
-  $('#resetAll').addEventListener('click', ()=>{
-    if(!confirm('¿Reiniciar marcador global?')) return;
-    saveScores({uri:0,olga:0});
-    renderScores();
-    showToast('Marcador global reiniciado');
-  });
-
-  // Helpers marcador local
-  function loadLocal(id){
-    try{
-      const obj = JSON.parse(localStorage.getItem(PLOCAL_KEY(id)) || '{"u":0,"o":0}');
-      return {u:+obj.u||0, o:+obj.o||0};
-    }catch{ return {u:0,o:0}; }
-  }
-  function saveLocal(id, u, o){
-    localStorage.setItem(PLOCAL_KEY(id), JSON.stringify({u,o}));
-  }
-
-  // Toast helper
-  function showToast(msg){
-    const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.style.display = 'block';
-    clearTimeout(showToast._t);
-    showToast._t = setTimeout(()=>{ t.style.display='none'; }, 2000);
-  }
-
-  // Modal
-  const backdrop = $('#backdrop');
-  const closeBtn = $('#closeDetail');
-  closeBtn.addEventListener('click', closeDetail);
-  backdrop.addEventListener('click', (e)=>{ if(e.target===backdrop) closeDetail(); });
-
-  function openDetail(id){
-    const g = GAMES.find(x=>x.id===id);
-    if(!g) return;
-    $('#detailCategory').textContent = g.category;
-    $('#detailTitle').textContent = g.title;
-    $('#detailPrep').textContent = g.prep;
-    $('#detailInstr').textContent = g.instructions;
-
-    const sc = $('#scoringControls');
-    const hint = $('#scoringHint');
-    sc.innerHTML = '';
-    const done = !!localStorage.getItem(DONE_KEY(g.id));
-    const prev = localStorage.getItem(RESULT_KEY(g.id)); // 'URI'|'OLGA'|'DRAW' or 'DONE'
-
-    if(g.type==='points'){
-      hint.style.display = 'none'; // ocultar siempre
-      const {u, o} = loadLocal(g.id);
-      const wrap = document.createElement('div');
-      wrap.className = 'controls responsive center';
-      wrap.innerHTML = `
-        <div class="counter"><strong>Uri</strong>
-          <button class="btn ghost" id="uMinus">−1</button>
-          <span class="score" id="uScore">${u}</span>
-          <button class="btn primary" id="uPlus">+1</button>
-        </div>
-        <div class="counter"><strong>Olga</strong>
-          <button class="btn ghost" id="oMinus">−1</button>
-          <span class="score" id="oScore">${o}</span>
-          <button class="btn primary" id="oPlus">+1</button>
-        </div>
-        <div class="controls stack" style="width:100%;max-width:420px">
-          <button class="btn ghost" id="resetLocal">Reset rondas</button>
-          <button class="btn primary" id="finalize">Finalizar juego</button>
-          <button class="btn danger" id="clearResult">Quitar resultado</button>
-        </div>
-      `;
-      sc.appendChild(wrap);
-
-      function setLocal(newU, newO){
-        $('#uScore').textContent = newU;
-        $('#oScore').textContent = newO;
-        saveLocal(g.id, newU, newO);
-      }
-      function setDisabled(dis){
-        ['uMinus','uPlus','oMinus','oPlus','resetLocal','finalize'].forEach(idBtn=>{
-          const b = sc.querySelector('#'+idBtn);
-          if(b) b.disabled = dis;
-        });
-      }
-      if(prev) setDisabled(true);
-
-      sc.querySelector('#uPlus').onclick = ()=> { const cur=loadLocal(g.id); setLocal(cur.u+1, cur.o); };
-      sc.querySelector('#uMinus').onclick = ()=> { const cur=loadLocal(g.id); setLocal(Math.max(0,cur.u-1), cur.o); };
-      sc.querySelector('#oPlus').onclick = ()=> { const cur=loadLocal(g.id); setLocal(cur.u, cur.o+1); };
-      sc.querySelector('#oMinus').onclick = ()=> { const cur=loadLocal(g.id); setLocal(cur.u, Math.max(0,cur.o-1)); };
-      sc.querySelector('#resetLocal').onclick = ()=>{ if(confirm('¿Resetear el marcador local de este juego?')) setLocal(0,0); };
-
-      sc.querySelector('#finalize').onclick = ()=>{
-        if(prev){ alert('Este juego ya está cerrado.'); return; }
-        const cur = loadLocal(g.id);
-        let outcome = 'DRAW';
-        if(cur.u > cur.o) outcome = 'URI';
-        else if(cur.o > cur.u) outcome = 'OLGA';
-
-        const s = loadScores();
-        if(outcome==='URI') s.uri += 1;
-        else if(outcome==='OLGA') s.olga += 1;
-        else { s.uri += 1; s.olga += 1; }
-        saveScores(s); renderScores();
-
-        localStorage.setItem(RESULT_KEY(g.id), outcome);
-        localStorage.setItem(DONE_KEY(g.id), '1');
-        setDisabled(true);
-        renderTiles();
-        showToast(`Resultado: ${outcome==='DRAW'?'Empate (+1 a ambos)':(outcome==='URI'?'Uri':'Olga')+' (+1 global)'}`);
-      };
-
-      sc.querySelector('#clearResult').onclick = ()=>{
-        if(!prev){ alert('Este juego no tenía resultado.'); return; }
-        if(!confirm('¿Quitar resultado y ajustar marcador global?')) return;
-        const s = loadScores();
-        if(prev==='URI' && s.uri>0) s.uri -= 1;
-        else if(prev==='OLGA' && s.olga>0) s.olga -= 1;
-        else if(prev==='DRAW'){ if(s.uri>0) s.uri -= 1; if(s.olga>0) s.olga -= 1; }
-        saveScores(s); renderScores();
-        localStorage.removeItem(RESULT_KEY(g.id));
-        localStorage.removeItem(DONE_KEY(g.id));
-        setDisabled(false);
-        renderTiles();
-        openDetail(g.id);
-        showToast('Resultado eliminado');
-      };
-
-    } else if(g.type==='versus'){
-      hint.style.display = 'none'; // ocultar siempre
-
-      const wrap = document.createElement('div');
-      wrap.className = 'controls responsive center';
-      wrap.innerHTML = `
-        <label class="choice"><input type="radio" name="winner" value="URI"> Uri gana</label>
-        <label class="choice"><input type="radio" name="winner" value="OLGA"> Olga gana</label>
-        <label class="choice"><input type="radio" name="winner" value="DRAW"> Empate</label>
-        <div class="controls stack" style="width:100%;max-width:420px">
-          <button class="btn primary" id="saveResult">Guardar</button>
-          <button class="btn danger" id="clearResult">Quitar resultado</button>
-        </div>
-      `;
-      sc.appendChild(wrap);
-
-      const prev = localStorage.getItem(RESULT_KEY(g.id));
-      if(prev){
-        const input = sc.querySelector(`input[value="${prev}"]`);
-        if(input) input.checked = true;
-      }
-
-      sc.querySelector('#saveResult').onclick = ()=>{
-        const sel = sc.querySelector('input[name="winner"]:checked');
-        if(!sel){ alert('Selecciona un resultado.'); return; }
-        const val = sel.value;
-        const prev = localStorage.getItem(RESULT_KEY(g.id));
-        if(!prev){
-          const s = loadScores();
-          if(val==='URI') s.uri += 1;
-          else if(val==='OLGA') s.olga += 1;
-          else if(val==='DRAW'){ s.uri += 1; s.olga += 1; }
-          saveScores(s); renderScores();
-        }
-        localStorage.setItem(RESULT_KEY(g.id), val);
-        localStorage.setItem(DONE_KEY(g.id), '1');
-        renderTiles();
-        showToast('Resultado guardado');
-      };
-
-      sc.querySelector('#clearResult').onclick = ()=>{
-        const prev = localStorage.getItem(RESULT_KEY(g.id));
-        if(!prev){ alert('Este juego no tenía resultado.'); return; }
-        if(!confirm('¿Quitar resultado y ajustar marcador global?')) return;
-        const s = loadScores();
-        if(prev==='URI' && s.uri>0) s.uri -= 1;
-        else if(prev==='OLGA' && s.olga>0) s.olga -= 1;
-        else if(prev==='DRAW'){ if(s.uri>0) s.uri -= 1; if(s.olga>0) s.olga -= 1; }
-        saveScores(s); renderScores();
-        localStorage.removeItem(RESULT_KEY(g.id));
-        localStorage.removeItem(DONE_KEY(g.id));
-        renderTiles();
-        openDetail(g.id);
-        showToast('Resultado eliminado');
-      };
-
-    } else if(g.type==='ritual'){
-      hint.style.display = 'none'; // ocultar siempre
-      const wrap = document.createElement('div');
-      wrap.className = 'controls stack center';
-      wrap.innerHTML = `
-        <button class="btn primary" id="markDone">${done?'Marcar como NO completado':'Marcar como completado'}</button>
-      `;
-      sc.appendChild(wrap);
-      sc.querySelector('#markDone').onclick = ()=>{
-        if(done){
-          localStorage.removeItem(DONE_KEY(g.id));
-          localStorage.removeItem(RESULT_KEY(g.id));
-          showToast('Marcado como pendiente');
-        }else{
-          localStorage.setItem(DONE_KEY(g.id),'1');
-          localStorage.setItem(RESULT_KEY(g.id),'DONE');
-          showToast('Marcado como completado');
-        }
-        renderTiles();
-        openDetail(g.id);
-      };
-    }
-
-    backdrop.style.display = 'flex';
-    backdrop.setAttribute('aria-hidden','false');
-  }
-
-  function closeDetail(){
-    backdrop.style.display = 'none';
-    backdrop.setAttribute('aria-hidden','true');
-  }
-})();
+}
+renderTiles();
 </script>
 </body>
 </html>
