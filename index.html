@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Olga & Oriol — Juegos (Firebase)</title>
+<title>Olga & Oriol — Juegos</title>
 <style>
   :root{
     --bg:#f6f4f2;
@@ -26,6 +26,7 @@
   html,body{margin:0;background:var(--bg);color:#2a2a2a;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif}
   .wrap{max-width:980px;margin:0 auto;padding:20px 16px 28px}
 
+  /* Header */
   header{display:flex;flex-direction:column;align-items:center;gap:12px;margin-top:4px;margin-bottom:10px}
   .logo{height:72px; width:auto; display:block}
   .scorebar{display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap}
@@ -40,15 +41,18 @@
   .btn-reset{border:none;background:#fff;border:1px solid var(--border);padding:8px 14px;border-radius:999px;cursor:pointer}
   .btn-reset:hover{filter:brightness(.98)}
 
+  /* Progress */
   .progress{width:100%;max-width:560px;margin:0 auto 6px}
   .progress .label{display:flex;justify-content:space-between; font-size:12px; color:var(--muted); margin:8px 4px}
   .bar{height:8px;background:#e9ecec;border-radius:999px;overflow:hidden}
   .bar > span{display:block;height:100%;width:0;background: color-mix(in srgb, var(--primary) 45%, white); border-radius:999px; transition:width .35s ease}
 
-  .filters{display:flex; gap:8px; justify-content:center; margin:16px 0 12px; flex-wrap:wrap}
+  /* Filters */
+  .filters{display:flex; gap:8px; justify-content:center; margin:10px 0 16px; flex-wrap:wrap}
   .chip{border:1px solid var(--border); background:#fff; padding:8px 12px; border-radius:999px; cursor:pointer; font-weight:600; color:#385247}
   .chip.active{background: color-mix(in srgb, var(--primary) 10%, white); border-color: color-mix(in srgb, var(--primary) 25%, white)}
 
+  /* Card tiles */
   .grid{display:grid;grid-template-columns:1fr;gap:12px}
   @media(min-width:720px){.grid{grid-template-columns:1fr 1fr}}
   @media(min-width:1060px){.grid{grid-template-columns:1fr 1fr 1fr}}
@@ -57,8 +61,10 @@
   .meta-row{display:flex;align-items:center;gap:8px;margin:0 0 6px;color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.08em}
   .card .title{display:block; font-weight:800; color:#2e4b3d; text-decoration:none; margin-bottom:6px; font-size:16px}
   .card.completed{background:var(--success-bg); border-color:#cfead7}
-  .badge{display:inline-flex;align-items:center;gap:6px;margin-top:10px;color:#2f703e;font-weight:700}
+  .badge{display:inline-flex;align-items:center;gap:6px;margin-top:10px;color:var(--success);font-weight:700}
+  .badge .check{width:18px;height:18px;border-radius:4px;border:2px solid var(--success);display:inline-flex;align-items:center;justify-content:center;font-size:14px}
 
+  /* Modal */
   .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;align-items:center;justify-content:center;padding:16px;z-index:1000}
   .modal{background:#fff;max-width:720px;width:100%;border-radius:16px;border:1px solid var(--border);box-shadow:var(--shadow)}
   .modal header{flex-direction:row;align-items:flex-start;justify-content:space-between;margin:0;padding:16px 16px 0}
@@ -83,9 +89,9 @@
   .counter .score{min-width:28px;text-align:center;font-weight:800}
   footer{margin-top:24px;text-align:center;color:#2f3b36}
 
-  /* Loader */
-  .skeleton{height:90px;border-radius:12px;background:linear-gradient(90deg,#eee,#f5f5f5,#eee);background-size:200% 100%;animation:shimmer 1.2s infinite; border:1px solid var(--border)}
-  @keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+  /* Skeletons */
+  .skeleton{background:linear-gradient(90deg,#eee,#f6f6f6,#eee);background-size:200% 100%;animation:s 1.2s infinite; border-radius:12px; height:64px}
+  @keyframes s {0%{background-position:200% 0}100%{background-position:-200% 0}}
 </style>
 </head>
 <body>
@@ -118,7 +124,7 @@
     <footer>Hecho con ❤️ para Olga &amp; Oriol.</footer>
   </div>
 
-  <!-- Modal -->
+  <!-- Modal detalle -->
   <div class="modal-backdrop" id="backdrop" role="dialog" aria-modal="true" aria-hidden="true">
     <div class="modal">
       <header>
@@ -147,296 +153,166 @@
     </div>
   </div>
 
-<script type="module">
-  // ------------ Firebase SDKs --------------
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-  import { getDatabase, ref, onValue, update, set, runTransaction } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-database.js";
-  import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+  <div id="toast" role="status" aria-live="polite" style="display:none;"></div>
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyDyVVC7MsVQ11S9-8fmUVTmyv9cMKVL1zE",
-    authDomain: "despedida-uriga.firebaseapp.com",
-    databaseURL: "https://despedida-uriga-default-rtdb.europe-west1.firebasedatabase.app",
-    projectId: "despedida-uriga",
-    storageBucket: "despedida-uriga.firebasestorage.app",
-    messagingSenderId: "733159815599",
-    appId: "1:733159815599:web:99ba9edcd19721cca0d75a",
-    measurementId: "G-BHXFTMXEDV"
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
+import { getDatabase, ref, onValue, set, get, child, update } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-database.js";
+import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDyVVC7MsVQ11S9-8fmUVTmyv9cMKVL1zE",
+  authDomain: "despedida-uriga.firebaseapp.com",
+  databaseURL: "https://despedida-uriga-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "despedida-uriga",
+  storageBucket: "despedida-uriga.firebasestorage.app",
+  messagingSenderId: "733159815599",
+  appId: "1:733159815599:web:99ba9edcd19721cca0d75a",
+  measurementId: "G-BHXFTMXEDV"
+};
+
+// UI helpers
+const $ = (q)=>document.querySelector(q);
+const tiles = $('#tiles');
+const progressText = $('#progressText');
+const progressBar = $('#progressBar');
+const uriScoreEl = $('#uriScore');
+const olgaScoreEl = $('#olgaScore');
+
+let FILTER = 'all';
+let GAMES = [];     // [{id, title, category, emoji, prep, instructions}]
+let RESULTS = {};   // {gameId: {done:bool, result:'URI'|'OLGA'|'DRAW'|'DONE'}}
+let SCORES = {uri:0, olga:0};
+
+function renderProgress(){
+  const done = Object.values(RESULTS).filter(x=>!!x && x.done).length;
+  const total = GAMES.length;
+  progressText.textContent = `${done} de ${total} completados`;
+  progressBar.style.width = total? `${(done/total)*100}%` : '0%';
+}
+function renderScores(){
+  uriScoreEl.textContent = SCORES.uri||0;
+  olgaScoreEl.textContent = SCORES.olga||0;
+}
+
+function renderTiles(){
+  tiles.innerHTML = '';
+  if(!GAMES.length){
+    tiles.innerHTML = '<div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>';
+    renderProgress();
+    return;
+  }
+  GAMES.forEach((g, idx)=>{
+    const safe = (v, def='') => (v===undefined || v===null) ? def : v;
+    const completed = !!(RESULTS[g.id]?.done);
+    if(FILTER==='pending' && completed) return;
+    if(FILTER==='done' && !completed) return;
+    const el = document.createElement('article');
+    el.className = 'card' + (completed ? ' completed' : '');
+    el.setAttribute('data-id', g.id);
+    const title = `${safe(g.emoji,'❓')} ${String(idx+1).padStart(2,'0')}. ${safe(g.title,'(Sin título)')}`;
+    el.innerHTML = `
+      <div class="meta-row"><span>${safe(g.category,'General')}</span></div>
+      <span class="title">${title}</span>
+      ${completed ? `<div class="badge"><span class="check">✓</span>Completado</div>`:''}
+    `;
+    el.addEventListener('click', ()=>openDetail(g.id));
+    tiles.appendChild(el);
+  });
+  renderProgress();
+}
+
+// Modal controls (simplified; keep same logic as before where possible)
+const backdrop = $('#backdrop');
+$('#closeDetail').addEventListener('click', ()=>closeDetail());
+backdrop.addEventListener('click', (e)=>{ if(e.target===backdrop) closeDetail(); });
+
+function openDetail(id){
+  const g = GAMES.find(x=>x.id===id);
+  if(!g) return;
+  $('#detailCategory').textContent = g.category || 'General';
+  $('#detailTitle').textContent = g.title || '(Sin título)';
+  $('#detailPrep').textContent = g.prep || '—';
+  $('#detailInstr').textContent = g.instructions || '—';
+
+  const sc = $('#scoringControls');
+  sc.innerHTML = '';
+  const done = !!(RESULTS[id]?.done);
+  const wrap = document.createElement('div');
+  wrap.className = 'controls stack center';
+  wrap.innerHTML = `<button class="btn ${done?'ghost':'primary'}" id="toggleDone">${done?'Marcar como NO completado':'Marcar como completado'}</button>`;
+  sc.appendChild(wrap);
+  sc.querySelector('#toggleDone').onclick = async ()=>{
+    const newDone = !done;
+    const db = getDatabase();
+    await update(ref(db, `results/${id}`), {done:newDone});
   };
 
-  const app = initializeApp(firebaseConfig);
-  const db = getDatabase(app);
-  const auth = getAuth(app);
+  backdrop.style.display = 'flex';
+  backdrop.setAttribute('aria-hidden','false');
+}
+function closeDetail(){
+  backdrop.style.display = 'none';
+  backdrop.setAttribute('aria-hidden','true');
+}
 
-  // ------------- DOM helpers ----------------
-  const $ = (q)=>document.querySelector(q);
-  const tilesEl = $('#tiles');
-  const progressText = $('#progressText');
-  const progressBar = $('#progressBar');
-  const uriScoreEl = $('#uriScore');
-  const olgaScoreEl = $('#olgaScore');
-  const uriLead = $('#uriLead');
-  const olgaLead = $('#olgaLead');
+// Firebase boot
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+const auth = getAuth(app);
 
-  let FILTER = 'all';
-  let games = [];
-  let scores = {uri:0, olga:0};
-
-  let gamesReady = false;
-  let scoresReady = false;
-
-  function maybeRenderInitial(){
-    if(gamesReady){
-      renderTiles();
-      renderProgress();
+// Wait auth then attach listeners
+onAuthStateChanged(auth, async (user)=>{
+  if(!user){
+    await signInAnonymously(auth).catch(console.error);
+    return;
+  }
+  // Attach listeners once
+  onValue(ref(db, 'games'), (snap)=>{
+    const val = snap.val();
+    if(!val){
+      GAMES = [];
+    }else if(Array.isArray(val)){
+      // array form (ensure entries with value)
+      GAMES = val
+        .map((g, i)=> g ? ({ id: g.id || String(i), ...g }) : null)
+        .filter(Boolean);
+    }else{
+      // object form {id:{...}}
+      GAMES = Object.entries(val).map(([id, g])=>({ id, ...(g||{}) }));
     }
-    if(scoresReady) renderScores();
-  }
-
-  // --------- Render functions ----------
-  function renderScores(){
-    uriScoreEl.textContent = scores.uri || 0;
-    olgaScoreEl.textContent = scores.olga || 0;
-    uriLead.textContent = scores.uri > scores.olga ? '↑' : (scores.uri < scores.olga ? '↓' : ' ');
-    olgaLead.textContent = scores.olga > scores.uri ? '↑' : (scores.olga < scores.uri ? '↓' : ' ');
-  }
-
-  function completedCount(){ return games.filter(g=>g.done).length; }
-  function renderProgress(){
-    const done = completedCount(); const total = games.length || 0;
-    progressText.textContent = `${done} de ${total} completados`;
-    progressBar.style.width = total ? `${(done/total)*100}%` : '0%';
-  }
-
-  function renderTiles(){
-    tilesEl.innerHTML = '';
-    games.forEach((g, idx)=>{
-      const completed = !!g.done;
-      if(FILTER==='pending' && completed) return;
-      if(FILTER==='done' && !completed) return;
-      const el = document.createElement('article');
-      el.className = 'card' + (completed ? ' completed' : '');
-      el.setAttribute('data-id', g.id);
-      el.innerHTML = `
-        <div class="meta-row"><span>${g.category||''}</span></div>
-        <span class="title">${g.emoji || ''} ${String(idx+1).padStart(2,'0')}. ${g.title}</span>
-        ${completed ? `<div class="badge">✓ Completado</div>`:''}
-      `;
-      el.addEventListener('click', ()=>openDetail(g.id));
-      tilesEl.appendChild(el);
-    });
-  }
-
-  // --------- Modal logic (re-used from previous version) ---------
-  const backdrop = $('#backdrop');
-  const closeBtn = $('#closeDetail');
-  closeBtn.addEventListener('click', closeDetail);
-  backdrop.addEventListener('click', (e)=>{ if(e.target===backdrop) closeDetail(); });
-
-  function openDetail(id){
-    const g = games.find(x=>x.id===id);
-    if(!g) return;
-    $('#detailCategory').textContent = g.category || '';
-    $('#detailTitle').textContent = g.title || '';
-    $('#detailPrep').textContent = g.prep || '';
-    $('#detailInstr').textContent = g.instructions || '';
-
-    const sc = $('#scoringControls');
-    const hint = $('#scoringHint');
-    sc.innerHTML = '';
-    const prev = g.result || null; // 'URI'|'OLGA'|'DRAW'|'DONE'
-
-    if(g.type==='points'){
-      hint.style.display = 'none';
-      const u = g.local?.u || 0;
-      const o = g.local?.o || 0;
-      const wrap = document.createElement('div');
-      wrap.className = 'controls responsive center';
-      wrap.innerHTML = `
-        <div class="counter"><strong>Uri</strong>
-          <button class="btn ghost" id="uMinus">−1</button>
-          <span class="score" id="uScore">${u}</span>
-          <button class="btn primary" id="uPlus">+1</button>
-        </div>
-        <div class="counter"><strong>Olga</strong>
-          <button class="btn ghost" id="oMinus">−1</button>
-          <span class="score" id="oScore">${o}</span>
-          <button class="btn primary" id="oPlus">+1</button>
-        </div>
-        <div class="controls stack" style="width:100%;max-width:420px">
-          <button class="btn ghost" id="resetLocal">Reset rondas</button>
-          <button class="btn primary" id="finalize">Finalizar juego</button>
-          <button class="btn danger" id="clearResult">Quitar resultado</button>
-        </div>
-      `;
-      sc.appendChild(wrap);
-
-      function setLocal(newU,newO){
-        $('#uScore').textContent = newU;
-        $('#oScore').textContent = newO;
-        update(ref(db, `games/${g.id}/local`), {u:newU,o:newO});
-      }
-      function setDisabled(dis){
-        ['uMinus','uPlus','oMinus','oPlus','resetLocal','finalize'].forEach(idBtn=>{
-          const b = sc.querySelector('#'+idBtn); if(b) b.disabled = dis;
-        });
-      }
-      if(prev) setDisabled(true);
-
-      sc.querySelector('#uPlus').onclick = ()=> setLocal((g.local?.u||0)+1, g.local?.o||0);
-      sc.querySelector('#uMinus').onclick = ()=> setLocal(Math.max(0,(g.local?.u||0)-1), g.local?.o||0);
-      sc.querySelector('#oPlus').onclick = ()=> setLocal(g.local?.u||0, (g.local?.o||0)+1);
-      sc.querySelector('#oMinus').onclick = ()=> setLocal(g.local?.u||0, Math.max(0,(g.local?.o||0)-1));
-      sc.querySelector('#resetLocal').onclick = ()=> setLocal(0,0);
-
-      sc.querySelector('#finalize').onclick = async ()=>{
-        if(prev){ alert('Este juego ya está cerrado.'); return; }
-        const curU = (g.local?.u||0);
-        const curO = (g.local?.o||0);
-        let outcome = 'DRAW';
-        if(curU > curO) outcome = 'URI';
-        else if(curO > curU) outcome = 'OLGA';
-
-        await runTransaction(ref(db,'scores'), (cur)=>{
-          if(!cur) cur = {uri:0,olga:0};
-          if(outcome==='URI') cur.uri = (cur.uri||0)+1;
-          else if(outcome==='OLGA') cur.olga = (cur.olga||0)+1;
-          else { cur.uri = (cur.uri||0)+1; cur.olga = (cur.olga||0)+1; }
-          return cur;
-        });
-        await update(ref(db,`games/${g.id}`), { result: outcome, done: true });
-        setDisabled(true);
-      };
-
-      sc.querySelector('#clearResult').onclick = async ()=>{
-        if(!prev){ alert('Este juego no tenía resultado.'); return; }
-        await runTransaction(ref(db,'scores'), (cur)=>{
-          if(!cur) return cur;
-          if(prev==='URI' && cur.uri>0) cur.uri--;
-          else if(prev==='OLGA' && cur.olga>0) cur.olga--;
-          else if(prev==='DRAW'){ if(cur.uri>0) cur.uri--; if(cur.olga>0) cur.olga--; }
-          return cur;
-        });
-        await update(ref(db,`games/${g.id}`), { result: null, done: false });
-      };
-
-    } else if(g.type==='versus'){
-      hint.style.display = 'none';
-      const wrap = document.createElement('div');
-      wrap.className = 'controls responsive center';
-      wrap.innerHTML = `
-        <label class="choice"><input type="radio" name="winner" value="URI"> Uri gana</label>
-        <label class="choice"><input type="radio" name="winner" value="OLGA"> Olga gana</label>
-        <label class="choice"><input type="radio" name="winner" value="DRAW"> Empate</label>
-        <div class="controls stack" style="width:100%;max-width:420px">
-          <button class="btn primary" id="saveResult">Guardar</button>
-          <button class="btn danger" id="clearResult">Quitar resultado</button>
-        </div>
-      `;
-      sc.appendChild(wrap);
-      if(prev){
-        const input = sc.querySelector(`input[value="${prev}"]`);
-        if(input) input.checked = true;
-      }
-
-      sc.querySelector('#saveResult').onclick = async ()=>{
-        const sel = sc.querySelector('input[name="winner"]:checked');
-        if(!sel){ alert('Selecciona un resultado.'); return; }
-        const val = sel.value;
-        if(!prev){
-          await runTransaction(ref(db,'scores'), (cur)=>{
-            if(!cur) cur = {uri:0,olga:0};
-            if(val==='URI') cur.uri = (cur.uri||0)+1;
-            else if(val==='OLGA') cur.olga = (cur.olga||0)+1;
-            else { cur.uri = (cur.uri||0)+1; cur.olga = (cur.olga||0)+1; }
-            return cur;
-          });
-        }
-        await update(ref(db,`games/${g.id}`), { result: val, done: true });
-      };
-
-      sc.querySelector('#clearResult').onclick = async ()=>{
-        if(!prev){ alert('Este juego no tenía resultado.'); return; }
-        await runTransaction(ref(db,'scores'), (cur)=>{
-          if(!cur) return cur;
-          if(prev==='URI' && cur.uri>0) cur.uri--;
-          else if(prev==='OLGA' && cur.olga>0) cur.olga--;
-          else if(prev==='DRAW'){ if(cur.uri>0) cur.uri--; if(cur.olga>0) cur.olga--; }
-          return cur;
-        });
-        await update(ref(db,`games/${g.id}`), { result:null, done:false });
-      };
-
-    } else if(g.type==='ritual'){
-      hint.style.display = 'none';
-      const wrap = document.createElement('div');
-      wrap.className = 'controls stack center';
-      wrap.innerHTML = `<button class="btn primary" id="markDone">${g.done?'Marcar como NO completado':'Marcar como completado'}</button>`;
-      sc.appendChild(wrap);
-      sc.querySelector('#markDone').onclick = async ()=>{
-        const newDone = !g.done;
-        await update(ref(db,`games/${g.id}`), { done: newDone, result: newDone?'DONE':null });
-      };
-    }
-
-    backdrop.style.display = 'flex';
-    backdrop.setAttribute('aria-hidden','false');
-  }
-
-  function closeDetail(){
-    backdrop.style.display = 'none';
-    backdrop.setAttribute('aria-hidden','true');
-  }
-
-  // Filters
-  document.querySelectorAll('.chip').forEach(ch=>{
-    ch.addEventListener('click', ()=>{
-      document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
-      ch.classList.add('active');
-      FILTER = ch.dataset.filter;
-      renderTiles();
-    });
+    // Sort stable by some order field if exists
+    GAMES.sort((a,b)=> (a.order??999)-(b.order??999));
+    renderTiles();
   });
 
-  // Reset (sets everything to default, remote)
-  document.getElementById('resetAll').addEventListener('click', async ()=>{
-    if(!confirm('¿Reiniciar marcador global y todos los juegos?')) return;
-    await set(ref(db,'scores'), {uri:0,olga:0});
-    // mark all games pending and clear results and locals
-    const updates = {};
-    games.forEach(g=>{
-      updates[`games/${g.id}/done`] = false;
-      updates[`games/${g.id}/result`] = null;
-      if(g.local) { updates[`games/${g.id}/local`] = {u:0,o:0}; }
-    });
-    await update(ref(db), updates);
+  onValue(ref(db, 'results'), (snap)=>{
+    RESULTS = snap.val() || {};
+    renderTiles();
   });
 
-  // ------------- AUTH + first render order ----------------
-  // Wait for auth ready before attaching listeners to avoid race conditions.
-  onAuthStateChanged(auth, (user)=>{
-    if(!user){
-      signInAnonymously(auth).catch(console.error);
-      return;
-    }
-    // Now attach listeners. First render happens only after first snapshot.
-    onValue(ref(db,'scores'), (snap)=>{
-      scores = snap.val() || {uri:0,olga:0};
-      scoresReady = true;
-      maybeRenderInitial();
-    });
-
-    onValue(ref(db,'games'), (snap)=>{
-      const obj = snap.val() || {};
-      // Keep array order stable by sorting by "order" if exists, or title.
-      games = Object.values(obj).sort((a,b)=>{
-        if(a.order!=null && b.order!=null) return a.order-b.order;
-        return (a.title||'').localeCompare(b.title||'');
-      });
-      gamesReady = true;
-      maybeRenderInitial();
-    });
+  onValue(ref(db, 'scores'), (snap)=>{
+    SCORES = snap.val() || {uri:0,olga:0};
+    renderScores();
   });
+});
+
+// Filters UI
+document.querySelectorAll('.chip').forEach(ch=>{
+  ch.addEventListener('click', ()=>{
+    document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+    ch.classList.add('active');
+    FILTER = ch.dataset.filter;
+    renderTiles();
+  });
+});
+
+// Reset button (only scores & results)
+document.getElementById('resetAll').addEventListener('click', async ()=>{
+  if(!confirm('¿Reiniciar marcador global y estados?')) return;
+  await update(ref(db), {scores:{uri:0,olga:0}, results:null});
+});
+
 </script>
 </body>
 </html>
