@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Olga & Oriol — Juegos (Realtime)</title>
+<title>Olga & Oriol — Juegos (Realtime + Shimmer)</title>
 <style>
   :root{
     --bg:#f6f4f2;
@@ -63,6 +63,20 @@
   .card.completed{background:var(--success-bg); border-color:#cfead7}
   .badge{display:inline-flex;align-items:center;gap:6px;margin-top:10px;color:var(--success);font-weight:700}
   .badge .check{width:18px;height:18px;border-radius:4px;border:2px solid var(--success);display:inline-flex;align-items:center;justify-content:center;font-size:14px}
+
+  /* Skeleton / Shimmer */
+  .skeleton{pointer-events:none}
+  .skeleton .line{height:12px;border-radius:6px;background:#eee;position:relative;overflow:hidden}
+  .skeleton .line.title{height:18px;border-radius:8px;margin-top:6px}
+  .skeleton .line.badge{height:16px;border-radius:8px;width:90px}
+  .skeleton .line:not(.title){margin:6px 0 0}
+  .shimmer::after{
+    content:'';position:absolute;inset:0;
+    background:linear-gradient(110deg, rgba(255,255,255,0) 0%, rgba(255,255,255,.35) 40%, rgba(255,255,255,0) 80%);
+    transform:translateX(-100%);
+    animation:shine 1.2s infinite;
+  }
+  @keyframes shine{to{transform:translateX(100%)}}
 
   /* Modal */
   .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;align-items:center;justify-content:center;padding:16px;z-index:1000}
@@ -165,23 +179,26 @@ const firebaseConfig = {
   messagingSenderId: "733159815599",
   appId: "1:733159815599:web:99ba9edcd19721cca0d75a",
   measurementId: "G-BHXFTMXEDV",
-  // ⚠️ IMPORTANTE: pon aquí TU databaseURL real.
-  // Si tu instancia RTDB está en europe-west1 suele ser:
-  // https://despedida-uriga-default-rtdb.europe-west1.firebasedatabase.app
   databaseURL: "https://despedida-uriga-default-rtdb.europe-west1.firebasedatabase.app"
 };
 
-// === App + Auth anónima (requerida por tus reglas) ===
+// === App + Auth anónima (requerida por las reglas) ===
 firebase.initializeApp(firebaseConfig);
+
+// Mostrar skeleton inmediatamente
+const tiles = document.getElementById('tiles');
+showSkeleton(9);
+
+// Firmar anónimo y, cuando esté, enganchar listeners
 firebase.auth().signInAnonymously().catch(console.error);
+firebase.auth().onAuthStateChanged((user)=>{
+  if(user){ boot(); }
+});
 
 // === RTDB refs ===
-const db = firebase.database();
-const scoresRef = db.ref('scores');
-const gamesRef  = db.ref('games');
+let db, scoresRef, gamesRef;
 
-// === Catálogo local de juegos (textos/UI) ===
-// (La verdad de estados/puntos viene siempre de Firebase)
+// === Catálogo local de juegos ===
 const GAMES_CATALOG = [
   { id:'madrecdotas', category:'Emancipación', title:'Las Madrecdotas', emoji:'⚖️',
     type:'points',
@@ -203,7 +220,7 @@ const GAMES_CATALOG = [
     prep:'Playlist/QR, móvil/altavoz, vasos, cubo/toalla. Zonas de performers y aguas.',
     instructions:'Duelos: si alguien ríe/escupe primero, +1 local para el otro. Al final, mayor gana 1 global; empate +1 ambos.'
   },
-  { id:'cata', category:'Rutina en Barcelona', title:'Cata de bebidas (a ciegas)', emoji:'🥤',
+  { id:'cata', category:'Introducción de Olga al clan', title:'Cata de bebidas (a ciegas)', emoji:'🥤',
     type:'versus',
     prep:'Caja opaca con pajitas; bebidas; pajitas nuevas por turno.',
     instructions:'Eligen agujero y beben. Picante elimina. Se declara Uri/Olga/Empate y suma al global.'
@@ -245,24 +262,33 @@ const GAMES_CATALOG = [
   }
 ];
 
-// === Estado UI ===
+// === DOM helpers ===
 const $ = (q)=>document.querySelector(q);
 const uriScoreEl = $('#uriScore');
 const olgaScoreEl = $('#olgaScore');
 const progressText = $('#progressText');
 const progressBar = $('#progressBar');
-const tiles = $('#tiles');
 let FILTER = 'all';
 
-// === Utilidades DB ===
-function txAddScore(who, delta){
-  return scoresRef.child(who).transaction(cur => (cur||0) + delta);
-}
-function setGameState(id, data){
-  return gamesRef.child(id).update(data);
+// Skeleton generator
+function showSkeleton(n=9){
+  tiles.innerHTML='';
+  for(let i=0;i<n;i++){
+    const el=document.createElement('article');
+    el.className='card skeleton';
+    el.innerHTML=`
+      <div class="meta-row">
+        <div class="line shimmer" style="width:140px"></div>
+      </div>
+      <div class="line title shimmer" style="width:80%"></div>
+      <div class="line shimmer" style="width:60%"></div>
+      <div class="line badge shimmer" style="margin-top:12px"></div>
+    `;
+    tiles.appendChild(el);
+  }
 }
 
-// === TOSTADAS ===
+// Toast helper
 function showToast(msg){
   const t = document.getElementById('toast');
   t.textContent = msg;
@@ -271,40 +297,52 @@ function showToast(msg){
   showToast._t = setTimeout(()=>{ t.style.display='none'; }, 1800);
 }
 
-// === RENDER SCORES (listener en tiempo real) ===
-scoresRef.on('value', snap=>{
-  const s = snap.val() || {uri:0, olga:0};
-  uriScoreEl.textContent = s.uri||0;
-  olgaScoreEl.textContent = s.olga||0;
-  const uriLead = $('#uriLead'); const olgaLead = $('#olgaLead');
-  const u = s.uri||0, o = s.olga||0;
-  uriLead.textContent = u>o?'↑':(u<o?'↓':' ');
-  olgaLead.textContent = o>u?'↑':(o<u?'↓':' ');
-});
+// === Boot once authenticated ===
+async function boot(){
+  db = firebase.database();
+  scoresRef = db.ref('scores');
+  gamesRef  = db.ref('games');
 
-// === RENDER TILES (listener en tiempo real) ===
-gamesRef.on('value', snap=>{
-  const all = snap.val() || {};
-  renderTiles(all);
-});
+  // Listeners en tiempo real
+  scoresRef.on('value', snap=>{
+    const s = snap.val() || {uri:0, olga:0};
+    uriScoreEl.textContent = s.uri||0;
+    olgaScoreEl.textContent = s.olga||0;
+    const uriLead = $('#uriLead'); const olgaLead = $('#olgaLead');
+    const u = s.uri||0, o = s.olga||0;
+    uriLead.textContent = u>o?'↑':(u<o?'↓':' ');
+    olgaLead.textContent = o>u?'↑':(o<u?'↓':' ');
+  });
 
-// === Inicialización: si no existen nodos, crearlos una vez ===
-firebase.auth().onAuthStateChanged(async user=>{
-  if(!user) return;
-  // init scores
+  let firstGames = true;
+  gamesRef.on('value', snap=>{
+    const all = snap.val();
+    if(!all){
+      // Primera vez sin datos: inicializamos y seguimos en skeleton hasta que suba
+      seedGames().then(()=>{});
+      return;
+    }
+    // La primera vez que llegan datos reales, renderizamos y reemplazamos skeleton
+    renderTiles(all);
+    if(firstGames){
+      firstGames = false;
+    }
+  });
+
+  // Init si no existen
   const s = await scoresRef.get();
   if(!s.exists()) await scoresRef.set({uri:0, olga:0});
-
-  // init games
   const g = await gamesRef.get();
-  if(!g.exists()){
-    const seed = {};
-    GAMES_CATALOG.forEach(gc=>{
-      seed[gc.id] = { done:false, result:null, local:{u:0,o:0}, type:gc.type, order:0 };
-    });
-    await gamesRef.set(seed);
-  }
-});
+  if(!g.exists()) await seedGames();
+}
+
+async function seedGames(){
+  const seed = {};
+  GAMES_CATALOG.forEach((gc, idx)=>{
+    seed[gc.id] = { done:false, result:null, local:{u:0,o:0}, type:gc.type, order:idx+1 };
+  });
+  await gamesRef.set(seed);
+}
 
 // === PROGRESO ===
 function renderProgressFrom(allGames){
@@ -318,8 +356,14 @@ function renderProgressFrom(allGames){
 // === TILES ===
 function renderTiles(allGames){
   tiles.innerHTML = '';
-  // mezclar catálogo por índice fijo
-  GAMES_CATALOG.forEach((gc, idx)=>{
+  // mantener orden estable por 'order' o catálogo
+  const byOrder = [...GAMES_CATALOG].sort((a,b)=>{
+    const A = allGames[a.id]?.order ?? 0;
+    const B = allGames[b.id]?.order ?? 0;
+    return A - B;
+  });
+
+  byOrder.forEach((gc, idx)=>{
     const state = allGames[gc.id] || {done:false};
     const completed = !!state.done;
     if(FILTER==='pending' && completed) return;
@@ -340,23 +384,21 @@ function renderTiles(allGames){
 
 // === Filtros ===
 document.querySelectorAll('.chip').forEach(ch=>{
-  ch.addEventListener('click', ()=>{
+  ch.addEventListener('click', async ()=>{
     document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
     ch.classList.add('active');
     FILTER = ch.dataset.filter;
-    gamesRef.get().then(s=>renderTiles(s.val()||{}));
+    showSkeleton(6);
+    const s = await gamesRef.get();
+    renderTiles(s.val()||{});
   });
 });
 
 // === RESET GLOBAL ===
-$('#resetAll').addEventListener('click', async ()=>{
+document.getElementById('resetAll').addEventListener('click', async ()=>{
   if(!confirm('¿Reiniciar marcador global y todos los juegos para todos?')) return;
   await scoresRef.set({uri:0, olga:0});
-  const updates = {};
-  GAMES_CATALOG.forEach(gc=>{
-    updates[gc.id] = {done:false, result:null, local:{u:0,o:0}, type:gc.type};
-  });
-  await gamesRef.update(updates);
+  await seedGames();
   showToast('Todo reiniciado');
 });
 
@@ -379,6 +421,14 @@ function openDetail(id, allGames){
   const hint = $('#scoringHint');
   sc.innerHTML = '';
   hint.style.display = 'none';
+
+  // Helpers DB
+  function txAddScore(who, delta){
+    return scoresRef.child(who).transaction(cur => (cur||0) + delta);
+  }
+  function setGameState(id, data){
+    return gamesRef.child(id).update(data);
+  }
 
   if(gc.type==='points'){
     const wrap = document.createElement('div');
@@ -420,7 +470,6 @@ function openDetail(id, allGames){
       if(curU > curO) outcome = 'URI';
       else if(curO > curU) outcome = 'OLGA';
 
-      // Sólo sumar al global si no había resultado previo
       const prevSnap = await gamesRef.child(id).child('result').get();
       const prev = prevSnap.val();
       if(!prev){
@@ -466,11 +515,11 @@ function openDetail(id, allGames){
       const val = sel.value;
       const prev = (await gamesRef.child(id).child('result').get()).val();
       if(!prev){
-        if(val==='URI') await txAddScore('uri', +1);
-        else if(val==='OLGA') await txAddScore('olga', +1);
-        else if(val==='DRAW'){ await txAddScore('uri', +1); await txAddScore('olga', +1); }
+        if(val==='URI') await scoresRef.child('uri').transaction(cur => (cur||0)+1);
+        else if(val==='OLGA') await scoresRef.child('olga').transaction(cur => (cur||0)+1);
+        else { await scoresRef.child('uri').transaction(cur => (cur||0)+1); await scoresRef.child('olga').transaction(cur => (cur||0)+1); }
       }
-      await setGameState(id, { result:val, done:true });
+      await gamesRef.child(id).update({ result:val, done:true });
       showToast('Resultado guardado');
       closeDetail();
     };
@@ -479,10 +528,10 @@ function openDetail(id, allGames){
       const prev = (await gamesRef.child(id).child('result').get()).val();
       if(!prev){ alert('Este juego no tenía resultado.'); return; }
       if(!confirm('¿Quitar resultado y ajustar marcador global?')) return;
-      if(prev==='URI') await txAddScore('uri', -1);
-      else if(prev==='OLGA') await txAddScore('olga', -1);
-      else if(prev==='DRAW'){ await txAddScore('uri', -1); await txAddScore('olga', -1); }
-      await setGameState(id, { result:null, done:false });
+      if(prev==='URI') await scoresRef.child('uri').transaction(cur => Math.max(0,(cur||0)-1));
+      else if(prev==='OLGA') await scoresRef.child('olga').transaction(cur => Math.max(0,(cur||0)-1));
+      else { await scoresRef.child('uri').transaction(cur => Math.max(0,(cur||0)-1)); await scoresRef.child('olga').transaction(cur => Math.max(0,(cur||0)-1)); }
+      await gamesRef.child(id).update({ result:null, done:false });
       showToast('Resultado eliminado');
       closeDetail();
     };
@@ -496,10 +545,10 @@ function openDetail(id, allGames){
     sc.appendChild(wrap);
     sc.querySelector('#markDone').onclick = async ()=>{
       if(state.done){
-        await setGameState(id, { done:false, result:null });
+        await gamesRef.child(id).update({ done:false, result:null });
         showToast('Marcado como pendiente');
       }else{
-        await setGameState(id, { done:true, result:'DONE' });
+        await gamesRef.child(id).update({ done:true, result:'DONE' });
         showToast('Marcado como completado');
       }
       closeDetail();
