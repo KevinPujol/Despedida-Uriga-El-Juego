@@ -76,7 +76,9 @@
     transform:translateX(-100%);
     animation:shine 1.2s infinite;
   }
-  @keyframes shine{to{transform:translateX(100%)}}
+  @keyframes shine{to{transform:translateX(100%)}
+
+  }
 
   /* Modal */
   .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;align-items:center;justify-content:center;padding:16px;z-index:1000}
@@ -189,7 +191,7 @@ firebase.initializeApp(firebaseConfig);
 const tiles = document.getElementById('tiles');
 showSkeleton(9);
 
-// Firmar anónimo y, cuando esté, enganchar listeners
+// Firma anónima y, cuando esté, engancha listeners
 firebase.auth().signInAnonymously().catch(console.error);
 firebase.auth().onAuthStateChanged((user)=>{
   if(user){ boot(); }
@@ -297,11 +299,34 @@ function showToast(msg){
   showToast._t = setTimeout(()=>{ t.style.display='none'; }, 1800);
 }
 
+// === Seed builder & writers ===
+function buildSeedGames(){
+  const seed = {};
+  GAMES_CATALOG.forEach((gc, idx)=>{
+    seed[gc.id] = { done:false, result:null, local:{u:0,o:0}, type:gc.type, order:idx+1 };
+  });
+  return seed;
+}
+
+async function writeFullReset(){
+  const updates = {
+    '/scores': {uri:0, olga:0},
+    '/games': buildSeedGames()
+  };
+  await firebase.database().ref().update(updates);
+}
+
 // === Boot once authenticated ===
 async function boot(){
   db = firebase.database();
   scoresRef = db.ref('scores');
   gamesRef  = db.ref('games');
+
+  // Init atomically if empty
+  const [s, g] = await Promise.all([scoresRef.get(), gamesRef.get()]);
+  if(!s.exists() || !g.exists()){
+    await writeFullReset();
+  }
 
   // Listeners en tiempo real
   scoresRef.on('value', snap=>{
@@ -314,33 +339,10 @@ async function boot(){
     olgaLead.textContent = o>u?'↑':(o<u?'↓':' ');
   });
 
-  let firstGames = true;
   gamesRef.on('value', snap=>{
-    const all = snap.val();
-    if(!all){
-      // Primera vez sin datos: inicializamos y seguimos en skeleton hasta que suba
-      seedGames().then(()=>{});
-      return;
-    }
+    const all = snap.val() || {};
     renderTiles(all);
-    if(firstGames){
-      firstGames = false;
-    }
   });
-
-  // Init si no existen
-  const s = await scoresRef.get();
-  if(!s.exists()) await scoresRef.set({uri:0, olga:0});
-  const g = await gamesRef.get();
-  if(!g.exists()) await seedGames();
-}
-
-async function seedGames(){
-  const seed = {};
-  GAMES_CATALOG.forEach((gc, idx)=>{
-    seed[gc.id] = { done:false, result:null, local:{u:0,o:0}, type:gc.type, order:idx+1 };
-  });
-  await gamesRef.set(seed);
 }
 
 // === PROGRESO ===
@@ -355,7 +357,6 @@ function renderProgressFrom(allGames){
 // === TILES ===
 function renderTiles(allGames){
   tiles.innerHTML = '';
-  // mantener orden estable por 'order' o catálogo
   const byOrder = [...GAMES_CATALOG].sort((a,b)=>{
     const A = allGames[a.id]?.order ?? 0;
     const B = allGames[b.id]?.order ?? 0;
@@ -393,11 +394,18 @@ document.querySelectorAll('.chip').forEach(ch=>{
   });
 });
 
-// === RESET GLOBAL (sin confirm) ===
-document.getElementById('resetAll').addEventListener('click', async ()=>{
-  await scoresRef.set({uri:0, olga:0});
-  await seedGames();
-  showToast('Todo reiniciado');
+// === RESET GLOBAL (sin confirm) — ATÓMICO ===
+document.getElementById('resetAll').addEventListener('click', async (e)=>{
+  const btn = e.currentTarget;
+  btn.disabled = true;
+  // Cierra modal si abierto para evitar re-escrituras desde UI
+  closeDetail();
+  try{
+    await writeFullReset(); // un único update atómico en raíz
+    showToast('Todo reiniciado');
+  }finally{
+    btn.disabled = false;
+  }
 });
 
 // === MODAL ===
@@ -424,8 +432,8 @@ function openDetail(id, allGames){
   function txAddScore(who, delta){
     return scoresRef.child(who).transaction(cur => (cur||0) + delta);
   }
-  function setGameState(id, data){
-    return gamesRef.child(id).update(data);
+  function setGameState(gameId, data){
+    return gamesRef.child(gameId).update(data);
   }
 
   const isLocked = !!state.done && !!state.result && state.result !== 'DONE';
@@ -495,7 +503,6 @@ function openDetail(id, allGames){
       closeDetail();
     };
 
-    // UI LOCK after finalize
     if(isLocked){
       ['uMinus','uPlus','oMinus','oPlus','resetLocal','finalize'].forEach(idBtn=>{
         const b = sc.querySelector('#'+idBtn);
@@ -546,9 +553,7 @@ function openDetail(id, allGames){
       closeDetail();
     };
 
-    // UI LOCK after finalize
     if(isLocked){
-      // Disable radios and save button, keep Clear Result active
       sc.querySelectorAll('input[name="winner"]').forEach(inp=>{ inp.disabled = true; });
       const saveBtn = sc.querySelector('#saveResult');
       if(saveBtn) saveBtn.disabled = true;
@@ -581,8 +586,10 @@ function openDetail(id, allGames){
 }
 
 function closeDetail(){
-  backdrop.style.display = 'none';
-  backdrop.setAttribute('aria-hidden','true');
+  const bd = document.getElementById('backdrop');
+  if(!bd) return;
+  bd.style.display = 'none';
+  bd.setAttribute('aria-hidden','true');
 }
 </script>
 </body>
