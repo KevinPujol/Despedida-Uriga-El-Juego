@@ -563,7 +563,7 @@ function openDetail(id, allGames){
     sc.querySelector('#clearResult').onclick = async ()=>{
       const prev = (await gamesRef.child(id).child('result').get()).val();
       if(!prev){ alert('Este juego no tenía resultado.'); return; }
-      if(!confirm('¿Quieres reiniciar todo? Esto borrará los puntos globales y locales y pondrá todos los juegos como no empezados.')) return;
+      if(!confirm('¿Estás seguro de quitar el resultado y reabrir este juego?')) return;
       if(prev==='URI') await scoresRef.child('uri').transaction(cur => Math.max(0,(cur||0)-1));
       else if(prev==='OLGA') await scoresRef.child('olga').transaction(cur => Math.max(0,(cur||0)-1));
       else { await scoresRef.child('uri').transaction(cur => Math.max(0,(cur||0)-1)); await scoresRef.child('olga').transaction(cur => Math.max(0,(cur||0)-1)); }
