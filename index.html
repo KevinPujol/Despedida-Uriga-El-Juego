@@ -26,6 +26,7 @@
   html,body{margin:0;background:var(--bg);color:#2a2a2a;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif}
   .wrap{max-width:980px;margin:0 auto;padding:20px 16px 28px}
 
+  /* Header */
   header{display:flex;flex-direction:column;align-items:center;gap:12px;margin-top:4px;margin-bottom:10px}
   .logo{height:72px; width:auto; display:block}
   .scorebar{display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap}
@@ -40,15 +41,18 @@
   .btn-reset{border:none;background:#fff;border:1px solid var(--border);padding:8px 14px;border-radius:999px;cursor:pointer}
   .btn-reset:hover{filter:brightness(.98)}
 
+  /* Progress */
   .progress{width:100%;max-width:560px;margin:0 auto 6px}
   .progress .label{display:flex;justify-content:space-between; font-size:12px; color:var(--muted); margin:8px 4px}
   .bar{height:8px;background:#e9ecec;border-radius:999px;overflow:hidden}
   .bar > span{display:block;height:100%;width:0;background: color-mix(in srgb, var(--primary) 45%, white); border-radius:999px; transition:width .35s ease}
 
+  /* Filters */
   .filters{display:flex; gap:8px; justify-content:center; margin:16px 0 12px; flex-wrap:wrap}
   .chip{border:1px solid var(--border); background:#fff; padding:8px 12px; border-radius:999px; cursor:pointer; font-weight:600; color:#385247}
   .chip.active{background: color-mix(in srgb, var(--primary) 10%, white); border-color: color-mix(in srgb, var(--primary) 25%, white)}
 
+  /* Card tiles */
   .grid{display:grid;grid-template-columns:1fr;gap:12px}
   @media(min-width:720px){.grid{grid-template-columns:1fr 1fr}}
   @media(min-width:1060px){.grid{grid-template-columns:1fr 1fr 1fr}}
@@ -60,6 +64,7 @@
   .badge{display:inline-flex;align-items:center;gap:6px;margin-top:10px;color:var(--success);font-weight:700}
   .badge .check{width:18px;height:18px;border-radius:4px;border:2px solid var(--success);display:inline-flex;align-items:center;justify-content:center;font-size:14px}
 
+  /* Modal */
   .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;align-items:center;justify-content:center;padding:16px;z-index:1000}
   .modal{background:#fff;max-width:720px;width:100%;border-radius:16px;border:1px solid var(--border);box-shadow:var(--shadow)}
   .modal header{flex-direction:row;align-items:flex-start;justify-content:space-between;margin:0;padding:16px 16px 0}
@@ -84,6 +89,7 @@
   .counter .score{min-width:28px;text-align:center;font-weight:800}
   footer{margin-top:24px;text-align:center;color:#2f3b36}
 
+  /* Toast */
   #toast{position:fixed;left:50%;transform:translateX(-50%);bottom:22px;background:var(--toast);color:#fff;padding:8px 14px;border-radius:999px;display:none;z-index:1200;box-shadow:var(--shadow);font-size:12px;white-space:nowrap}
 </style>
 </head>
@@ -113,6 +119,7 @@
     <footer>Hecho con ❤️ para Olga &amp; Oriol.</footer>
   </div>
 
+  <!-- Modal detalle -->
   <div class="modal-backdrop" id="backdrop" role="dialog" aria-modal="true" aria-hidden="true">
     <div class="modal">
       <header>
@@ -143,11 +150,13 @@
 
   <div id="toast" role="status" aria-live="polite"></div>
 
+<!-- Firebase SDK (v10 compat builds for simplicity) -->
 <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-database-compat.js"></script>
 
 <script>
+// === CONFIGURA TU PROYECTO ===
 const firebaseConfig = {
   apiKey: "AIzaSyDyVVC7MsVQ11S9-8fmUVTmyv9cMKVL1zE",
   authDomain: "despedida-uriga.firebaseapp.com",
@@ -156,70 +165,87 @@ const firebaseConfig = {
   messagingSenderId: "733159815599",
   appId: "1:733159815599:web:99ba9edcd19721cca0d75a",
   measurementId: "G-BHXFTMXEDV",
+  // ⚠️ IMPORTANTE: pon aquí TU databaseURL real.
+  // Si tu instancia RTDB está en europe-west1 suele ser:
+  // https://despedida-uriga-default-rtdb.europe-west1.firebasedatabase.app
   databaseURL: "https://despedida-uriga-default-rtdb.europe-west1.firebasedatabase.app"
 };
 
+// === App + Auth anónima (requerida por tus reglas) ===
 firebase.initializeApp(firebaseConfig);
 firebase.auth().signInAnonymously().catch(console.error);
 
+// === RTDB refs ===
 const db = firebase.database();
 const scoresRef = db.ref('scores');
 const gamesRef  = db.ref('games');
 
-// —— Catálogo UI (NO viene de la DB) ——
+// === Catálogo local de juegos (textos/UI) ===
+// (La verdad de estados/puntos viene siempre de Firebase)
 const GAMES_CATALOG = [
-  { id:'madrecdotas', category:'Emancipación', title:'Las Madrecdotas', emoji:'⚖️', type:'points',
+  { id:'madrecdotas', category:'Emancipación', title:'Las Madrecdotas', emoji:'⚖️',
+    type:'points',
     prep:'Caja con anécdotas impresas y autor indicado.',
     instructions:'El MC lee una anécdota. Uri y Olga dicen de quién es (sin hablar entre ellos). Asigna +1 local al que acierte.'
   },
-  { id:'cordon', category:'Emancipación', title:'Cortar el cordón (doble Human Knot)', emoji:'🪢', type:'versus',
+  { id:'cordon', category:'Emancipación', title:'Cortar el cordón (doble Human Knot)', emoji:'🪢',
+    type:'versus',
     prep:'Formar 2 grupos del mismo tamaño. Manos a personas no adyacentes.',
-    instructions:'Sin soltarse, seguir a su guía para deshacer el nudo. Se valora rapidez/claridad/diversión. Resultado: Uri / Olga / Empate.'
+    instructions:'Sin soltarse, seguir a su guía para deshacer el nudo. Rapidez/claridad/diversión. Resultado: Uri / Olga / Empate.'
   },
-  { id:'microbiotas', category:'Introducción de Olga al clan', title:'Banco de Microbiotas', emoji:'⚗️', type:'points',
+  { id:'microbiotas', category:'Introducción de Olga al clan', title:'Banco de Microbiotas', emoji:'⚗️',
+    type:'points',
     prep:'Tuppers opacos numerados; antifaces; toallitas; pistola(s) de agua.',
     instructions:'Con antifaz, tocan 30s el tupper. Describen y adivinan. +1 local a quien acierte.'
   },
-  { id:'tiktok', category:'Introducción de Olga al clan', title:'Try Not to Laugh — TikTok (QR)', emoji:'🕺', type:'points',
+  { id:'tiktok', category:'Introducción de Olga al clan', title:'Try Not to Laugh — TikTok (QR)', emoji:'🕺',
+    type:'points',
     prep:'Playlist/QR, móvil/altavoz, vasos, cubo/toalla. Zonas de performers y aguas.',
     instructions:'Duelos: si alguien ríe/escupe primero, +1 local para el otro. Al final, mayor gana 1 global; empate +1 ambos.'
   },
-  { id:'cata', category:'Introducción de Olga al clan', title:'Cata de bebidas (a ciegas)', emoji:'🥤', type:'versus',
+  { id:'cata', category:'Rutina en Barcelona', title:'Cata de bebidas (a ciegas)', emoji:'🥤',
+    type:'versus',
     prep:'Caja opaca con pajitas; bebidas; pajitas nuevas por turno.',
     instructions:'Eligen agujero y beben. Picante elimina. Se declara Uri/Olga/Empate y suma al global.'
   },
-  { id:'siameses', category:'Fusión en Uriga', title:'Mini‑retos a dos manos', emoji:'🤝', type:'ritual',
+  { id:'siameses', category:'Fusión en Uriga', title:'Mini‑retos a dos manos', emoji:'🤝',
+    type:'ritual',
     prep:'Cinta para unir; hoja A4; pack de envoltorio; globo+rotulador.',
     instructions:'Tres tareas con una mano cada uno. Al final se les ata una mano. Sin puntos.'
   },
-  { id:'musical', category:'Fusión en Uriga', title:'Vivir en un musical — Escenas', emoji:'🎤', type:'ritual',
+  { id:'musical', category:'Fusión en Uriga', title:'Vivir en un musical — Escenas', emoji:'🎤',
+    type:'ritual',
     prep:'Lista de escenas; altavoz.',
     instructions:'Impro musical 60–90s por escena. Sin puntos.'
   },
-  { id:'yincana', category:'UriGPT', title:'Yincana de fotos — Multiagente Edition', emoji:'📸', type:'versus',
+  { id:'yincana', category:'UriGPT', title:'Yincana de fotos — Multiagente Edition', emoji:'📸',
+    type:'versus',
     prep:'1 móvil por equipo. Tiempo total: 12–15 min.',
     instructions:'Roles de Uri + condición extra. Se decide Uri/Olga/Empate y suma al global.'
   },
-  { id:'recogida', category:'Vida en el Palacete', title:'Recogida a ciegas', emoji:'🙈', type:'versus',
+  { id:'recogida', category:'Vida en el Palacete', title:'Recogida a ciegas', emoji:'🙈',
+    type:'versus',
     prep:'Campo delimitado, piezas, obstáculos seguros, 2 antifaces.',
     instructions:'1 ciego por equipo guiado por voz. +1 por pieza en base. Resultado Uri/Olga/Empate suma global.'
   },
-  { id:'nofoto', category:'Vida en el Palacete', title:'No salgas en la foto (cucarachas)', emoji:'🪳', type:'versus',
+  { id:'nofoto', category:'Vida en el Palacete', title:'No salgas en la foto (cucarachas)', emoji:'🪳',
+    type:'versus',
     prep:'Salón; móvil/cámara; sin flash/sonidos; antifaz.',
     instructions:'Fotógrafo a ciegas 2 min. Revisión: quien salga nítido eliminado. Resultado suma global.'
   },
-  { id:'riego', category:'Vida en el Palacete', title:'Riego Milagroso — Pasa el agua atrás', emoji:'💧', type:'versus',
+  { id:'riego', category:'Vida en el Palacete', title:'Riego Milagroso — Pasa el agua atrás', emoji:'💧',
+    type:'versus',
     prep:'Dos filas, botellas, recipientes y tupper final.',
     instructions:'Cadena sin mirar. 2–3 min o hasta 500 ml. Uri/Olga/Empate suma global.'
   },
-  { id:'sprite', category:'Bonus Final', title:'Exorcismo de Maitreya', emoji:'🫧', type:'points',
+  { id:'sprite', category:'Bonus Final', title:'Exorcismo de Maitreya', emoji:'🫧',
+    type:'points',
     prep:'Sprite fría en vasos iguales; toallas; 45–60s por ronda.',
     instructions:'Duelos: si alguien eructa, +1 local al otro. Al final mayor gana 1 global; empate +1 ambos.'
   }
 ];
-// lookup para evitar "undefined"
-const CATALOG_BY_ID = Object.fromEntries(GAMES_CATALOG.map(g=>[g.id,g]));
 
+// === Estado UI ===
 const $ = (q)=>document.querySelector(q);
 const uriScoreEl = $('#uriScore');
 const olgaScoreEl = $('#olgaScore');
@@ -228,6 +254,15 @@ const progressBar = $('#progressBar');
 const tiles = $('#tiles');
 let FILTER = 'all';
 
+// === Utilidades DB ===
+function txAddScore(who, delta){
+  return scoresRef.child(who).transaction(cur => (cur||0) + delta);
+}
+function setGameState(id, data){
+  return gamesRef.child(id).update(data);
+}
+
+// === TOSTADAS ===
 function showToast(msg){
   const t = document.getElementById('toast');
   t.textContent = msg;
@@ -236,59 +271,65 @@ function showToast(msg){
   showToast._t = setTimeout(()=>{ t.style.display='none'; }, 1800);
 }
 
-// —— Live listeners ——
+// === RENDER SCORES (listener en tiempo real) ===
 scoresRef.on('value', snap=>{
   const s = snap.val() || {uri:0, olga:0};
-  const u = s.uri||0, o = s.olga||0;
-  uriScoreEl.textContent = u;
-  olgaScoreEl.textContent = o;
+  uriScoreEl.textContent = s.uri||0;
+  olgaScoreEl.textContent = s.olga||0;
   const uriLead = $('#uriLead'); const olgaLead = $('#olgaLead');
+  const u = s.uri||0, o = s.olga||0;
   uriLead.textContent = u>o?'↑':(u<o?'↓':' ');
   olgaLead.textContent = o>u?'↑':(o<u?'↓':' ');
 });
 
+// === RENDER TILES (listener en tiempo real) ===
 gamesRef.on('value', snap=>{
   const all = snap.val() || {};
   renderTiles(all);
 });
 
-// —— Seed inicial si falta ——
+// === Inicialización: si no existen nodos, crearlos una vez ===
 firebase.auth().onAuthStateChanged(async user=>{
   if(!user) return;
+  // init scores
   const s = await scoresRef.get();
   if(!s.exists()) await scoresRef.set({uri:0, olga:0});
+
+  // init games
   const g = await gamesRef.get();
   if(!g.exists()){
     const seed = {};
     GAMES_CATALOG.forEach(gc=>{
-      seed[gc.id] = { done:false, result:null, local:{u:0,o:0}, type:gc.type };
+      seed[gc.id] = { done:false, result:null, local:{u:0,o:0}, type:gc.type, order:0 };
     });
     await gamesRef.set(seed);
   }
 });
 
+// === PROGRESO ===
 function renderProgressFrom(allGames){
-  const total = GAMES_CATALOG.length;
-  const done = Object.values(allGames).filter(g=>g && g.done).length;
+  const arr = Object.values(allGames);
+  const total = arr.length;
+  const done = arr.filter(g=>!!g.done).length;
   progressText.textContent = `${done} de ${total} completados`;
   progressBar.style.width = `${total? (done/total)*100 : 0}%`;
 }
 
+// === TILES ===
 function renderTiles(allGames){
   tiles.innerHTML = '';
+  // mezclar catálogo por índice fijo
   GAMES_CATALOG.forEach((gc, idx)=>{
     const state = allGames[gc.id] || {done:false};
     const completed = !!state.done;
     if(FILTER==='pending' && completed) return;
     if(FILTER==='done' && !completed) return;
-
-    const safe = CATALOG_BY_ID[gc.id] || {title: gc.id, category:'', emoji:''};
     const el = document.createElement('article');
     el.className = 'card' + (completed ? ' completed' : '');
     el.setAttribute('data-id', gc.id);
     el.innerHTML = `
-      <div class="meta-row"><span>${safe.category}</span></div>
-      <span class="title">${safe.emoji} ${String(idx+1).padStart(2,'0')}. ${safe.title}</span>
+      <div class="meta-row"><span>${gc.category}</span></div>
+      <span class="title">${gc.emoji} ${String(idx+1).padStart(2,'0')}. ${gc.title}</span>
       ${completed ? `<div class="badge"><span class="check">✓</span>Completado</div>`:''}
     `;
     el.addEventListener('click', ()=>openDetail(gc.id, allGames));
@@ -297,19 +338,18 @@ function renderTiles(allGames){
   renderProgressFrom(allGames);
 }
 
-// Filtros
+// === Filtros ===
 document.querySelectorAll('.chip').forEach(ch=>{
-  ch.addEventListener('click', async ()=>{
+  ch.addEventListener('click', ()=>{
     document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
     ch.classList.add('active');
     FILTER = ch.dataset.filter;
-    const snap = await gamesRef.get();
-    renderTiles(snap.val()||{});
+    gamesRef.get().then(s=>renderTiles(s.val()||{}));
   });
 });
 
-// Reset global
-document.getElementById('resetAll').addEventListener('click', async ()=>{
+// === RESET GLOBAL ===
+$('#resetAll').addEventListener('click', async ()=>{
   if(!confirm('¿Reiniciar marcador global y todos los juegos para todos?')) return;
   await scoresRef.set({uri:0, olga:0});
   const updates = {};
@@ -320,27 +360,25 @@ document.getElementById('resetAll').addEventListener('click', async ()=>{
   showToast('Todo reiniciado');
 });
 
-// Modal
-const backdrop = document.getElementById('backdrop');
-document.getElementById('closeDetail').addEventListener('click', closeDetail);
+// === MODAL ===
+const backdrop = $('#backdrop');
+const closeBtn = $('#closeDetail');
+closeBtn.addEventListener('click', closeDetail);
 backdrop.addEventListener('click', (e)=>{ if(e.target===backdrop) closeDetail(); });
 
 function openDetail(id, allGames){
-  const gc = CATALOG_BY_ID[id];
+  const gc = GAMES_CATALOG.find(x=>x.id===id);
   if(!gc) return;
-  document.getElementById('detailCategory').textContent = gc.category || '';
-  document.getElementById('detailTitle').textContent = gc.title || id;
-  document.getElementById('detailPrep').textContent = gc.prep || '';
-  document.getElementById('detailInstr').textContent = gc.instructions || '';
+  $('#detailCategory').textContent = gc.category;
+  $('#detailTitle').textContent = gc.title;
+  $('#detailPrep').textContent = gc.prep;
+  $('#detailInstr').textContent = gc.instructions;
 
   const state = (allGames && allGames[id]) || {done:false, result:null, local:{u:0,o:0}};
-  const sc = document.getElementById('scoringControls');
-  const hint = document.getElementById('scoringHint');
+  const sc = $('#scoringControls');
+  const hint = $('#scoringHint');
   sc.innerHTML = '';
   hint.style.display = 'none';
-
-  function setGameState(id, data){ return gamesRef.child(id).update(data); }
-  function txAddScore(who, delta){ return scoresRef.child(who).transaction(cur => (cur||0) + delta); }
 
   if(gc.type==='points'){
     const wrap = document.createElement('div');
@@ -365,8 +403,8 @@ function openDetail(id, allGames){
     sc.appendChild(wrap);
 
     function setLocal(newU, newO){
-      document.getElementById('uScore').textContent = newU;
-      document.getElementById('oScore').textContent = newO;
+      $('#uScore').textContent = newU;
+      $('#oScore').textContent = newO;
       setGameState(id, { local:{u:newU, o:newO} });
     }
     sc.querySelector('#uPlus').onclick = ()=> { const curU=+(document.getElementById('uScore').textContent||0); const curO=+(document.getElementById('oScore').textContent||0); setLocal(curU+1, curO); };
@@ -382,6 +420,7 @@ function openDetail(id, allGames){
       if(curU > curO) outcome = 'URI';
       else if(curO > curU) outcome = 'OLGA';
 
+      // Sólo sumar al global si no había resultado previo
       const prevSnap = await gamesRef.child(id).child('result').get();
       const prev = prevSnap.val();
       if(!prev){
@@ -451,7 +490,9 @@ function openDetail(id, allGames){
   } else if(gc.type==='ritual'){
     const wrap = document.createElement('div');
     wrap.className = 'controls stack center';
-    wrap.innerHTML = `<button class="btn primary" id="markDone">${state.done?'Marcar como NO completado':'Marcar como completado'}</button>`;
+    wrap.innerHTML = `
+      <button class="btn primary" id="markDone">${state.done?'Marcar como NO completado':'Marcar como completado'}</button>
+    `;
     sc.appendChild(wrap);
     sc.querySelector('#markDone').onclick = async ()=>{
       if(state.done){
