@@ -438,7 +438,36 @@ function openDetail(id, allGames){
   $('#detailPrep').textContent = gc.prep;
   $('#detailInstr').textContent = gc.instructions;
 
-  const state = (allGames && allGames[id]) || {done:false, result:null, local:{u:0,o:0}};
+  
+  // --- Enlace externo para juegos específicos ---
+  (function(){
+    const LINKS = {
+      madrecdotas: 'https://kevinpujol.github.io/Despedida-Uriga-Madrecdotas/',
+      tiktok: 'https://kevinpujol.github.io/Despedida-Uriga-Try-Not-To-Laugh-/',
+      musical: 'https://kevinpujol.github.io/Despedida-Uriga-Escenas-Musicales/'
+    };
+    const contentEl = document.querySelector('.modal .content');
+    const prevBtn = document.getElementById('openGameBtn');
+    if(prevBtn && prevBtn.parentElement){ prevBtn.parentElement.remove(); }
+    const href = LINKS[id];
+    if(href && contentEl){
+      const firstSection = contentEl.querySelector('.section-block');
+      const wrap = document.createElement('div');
+      wrap.className = 'controls';
+      wrap.style.margin = '0 0 8px';
+      const a = document.createElement('a');
+      a.id = 'openGameBtn';
+      a.className = 'btn ghost';
+      a.href = href;
+      a.target = '_blank';
+      a.rel = 'noopener';
+      a.textContent = 'Abrir juego';
+      wrap.appendChild(a);
+      contentEl.insertBefore(wrap, firstSection);
+    }
+  })();
+
+const state = (allGames && allGames[id]) || {done:false, result:null, local:{u:0,o:0}};
   const sc = $('#scoringControls');
   const hint = $('#scoringHint');
   sc.innerHTML = '';
