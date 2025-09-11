@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<title>Licencia Multiagente — Uriga</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+  :root{
+    --ink:#141a29; --accent:#10b981; --muted:#6b7280; --paper:#fff; --rule:#e5e7eb;
+    --serif: Georgia, "Times New Roman", serif;
+    --sans: system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
+  }
+  @page { size: A4; margin: 24mm; }
+  *{box-sizing:border-box}
+  html,body{background:#f4f6f9; color:var(--ink)}
+  .paper{max-width:820px; margin:24px auto; padding:28px; background:var(--paper); border:1px solid var(--rule); border-radius:14px; position:relative}
+  .header{display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:nowrap}
+  .logo{width:240px; height:auto; display:block}
+  .seal{width:160px; height:auto; display:block}
+  h1{font-family:var(--serif); font-size:36px; text-align:center; margin:4px 0 6px}
+  h2{font-family:var(--sans); font-weight:700; font-size:12px; text-transform:uppercase; letter-spacing:.14em; color:var(--muted); text-align:center; margin:0 0 16px}
+  .grid{display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:14px 0 12px}
+  .card{border:1px solid var(--rule); border-radius:12px; padding:12px 14px; background:#fbfffd}
+  .label{font-family:var(--sans); font-size:11px; text-transform:uppercase; letter-spacing:.12em; color:var(--muted); margin-bottom:2px}
+  .value{font-family:var(--sans); font-weight:700}
+  .roles{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; margin-top:8px}
+  .role{border:1px dashed var(--accent); border-radius:10px; padding:10px 12px; background:#f0fdf4}
+  .role strong{font-family:var(--sans)}
+  .role small{font-family:var(--sans)}
+  .signs{display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-top:15px}
+  .sig{border-top:1px solid var(--ink); padding-top:6px; text-align:center; font-family:var(--sans); font-size:13px}
+  .footer{display:flex; justify-content:space-between; align-items:flex-end; gap:16px; margin-top:28px; padding-bottom:16px}
+  @media print{ html,body{background:#fff} .paper{border:0} }
+</style>
+</head>
+<body>
+  <div class="paper">
+    <div class="header"><div class="brand"><img src="logo.png" class="logo" alt="Logo Uriga"></div><img src="sello-licencia.png" class="seal" alt="Sello — Licencia Multiagente"></div>
+    <h2>Servicios para el hogar y el grupo</h2>
+    <h1>Licencia Multiagente</h1>
+
+    <div class="grid">
+      <div class="card">
+        <div class="label">Titular</div>
+        <div class="value">Uriga (Uri &amp; Olga)</div>
+      </div>
+      <div class="card">
+        <div class="label">N.º de licencia</div>
+        <div class="value">URIGA-MX-250904</div>
+      </div>
+      <div class="card">
+        <div class="label">Lugar</div>
+        <div class="value">_____________________________</div>
+      </div>
+      <div class="card">
+        <div class="label">Fecha de emisión</div>
+        <div class="value">____ / ____ / ______</div>
+      </div>
+    </div>
+
+    <div class="roles">
+      <div class="role"><strong>Cocinero/a</strong><br><small>Alimenta con generosidad y cariño.</small></div>
+      <div class="role"><strong>Masajista</strong><br><small>Descontractura dramas y espaldas.</small></div>
+      <div class="role"><strong>Terapeuta</strong><br><small>Escucha y ordena la mente.</small></div>
+      <div class="role"><strong>Jardinero/a</strong><br><small>Riega potus y hace milagros domésticos.</small></div>
+      <div class="role"><strong>Motorista</strong><br><small>Te lleva y trae con seguridad.</small></div>
+      <div class="role"><strong>Desarrollador/a</strong><br><small>Te crea la página web de tu negocio.</small></div>
+      <div class="role"><strong>Domótica</strong><br><small>Te abre luces y puertas como si no estuviera allí.</small></div>
+      <div class="role"><strong>Exterminador de plagas</strong><br><small>Te mata las cucarachas de tu hogar.</small></div>
+      <div class="role"><strong>Ingeniero/a</strong><br><small>Te explica en detalle lo que es la inducción.</small></div>
+    </div>
+
+    <div class="signs row">
+      <div>
+        <div style="height:60px"></div>
+        <div class="sig">Firma de Uri</div>
+      </div>
+      <div>
+        <div style="height:60px"></div>
+        <div class="sig">Firma de Olga</div>
+      </div>
+    </div>
+
+    <div class="signs">
+      <div style="align-self:end; font:12px var(--sans); color:var(--muted);">
+        Validez: indefinida · Revisable por acuerdo de ambas partes.
+      </div>
+      <div>
+        <div style="height:60px"></div>
+        <div class="sig">Testigo/a</div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
