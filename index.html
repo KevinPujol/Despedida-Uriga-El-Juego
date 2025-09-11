@@ -79,10 +79,14 @@
   @keyframes shine{to{transform:translateX(100%)}}
 
   /* Modal */
-  .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;align-items:center;justify-content:center;padding:16px;z-index:1000}
-  .modal{background:#fff;max-width:720px;width:100%;border-radius:16px;border:1px solid var(--border);box-shadow:var(--shadow)}
-  .modal header{flex-direction:row;align-items:flex-start;justify-content:space-between;margin:0;padding:16px 16px 0}
-  .modal .content{padding:0 16px 16px}
+  .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;align-items:center;justify-content:center;padding:16px;z-index:1000 overflow:auto; }
+
+  .modal{background:#fff;max-width:720px;width:100%;border-radius:16px;border:1px solid var(--border);box-shadow:var(--shadow) max-height:92vh; display:flex; flex-direction:column; overflow:hidden; }
+
+  .modal header{flex-direction:row;align-items:flex-start;justify-content:space-between;margin:0;padding:16px 16px 0 position:sticky; top:0; background:#fff; z-index:2; }
+
+  .modal .content{padding:0 16px 16px overflow-y:auto; -webkit-overflow-scrolling:touch; }
+
   .modal h1{font-size:20px;margin:2px 0 6px}
   .modal .meta{color:var(--muted);font-size:13px;margin-bottom:8px}
   .close{background:#fff;border:1px solid var(--border);border-radius:10px;padding:10px 12px;cursor:pointer}
@@ -123,6 +127,14 @@
   #openGameBtn:hover {
     background:#e2eaff;
   }
+  
+  details.exp > summary{
+    list-style: none; cursor: pointer; display:flex; align-items:center; gap:.5rem;
+  }
+  details.exp > summary::marker{ content:""; } /* quita el marcador por defecto */
+  details.exp .chev{ transition: transform .2s; }
+  details.exp[open] .chev{ transform: rotate(90deg); }
+  details.exp .hint{ font-weight:400; font-size:.9em; color:#6b7280; margin-left:.25rem; }
 
 </style>
 </head>
@@ -350,8 +362,12 @@ const GAMES_CATALOG = [
     prep: `Lista de retos/fotos, 1 móvil por equipo, <strong>tiempo máx.: 15 min</strong>.`,
     instructions: `
       <p>Cada foto representa un <strong>rol de Uri</strong> con <strong>condición obligatoria</strong>. +1 por foto válida dentro del tiempo. Juegan ambos equipos a la vez. <strong>Gana</strong> quien logre más fotos válidas (puede haber empate).</p>
-      <details>
-        <summary><strong>Retos y condiciones</strong></summary>
+      <details class="exp">
+        <summary>
+          <span class="chev" aria-hidden="true">▸</span>
+          <strong>Retos y condiciones</strong>
+          <span class="hint">toca para ver</span>
+        </summary>
         <ul>
           <li><strong>Uri Espiritista</strong> 🧹👻 — <em>≥1 persona no toca el suelo.</em></li>
           <li><strong>Uri Cocinero</strong> 🧀 — <em>Todo el equipo forma/está dentro de un “horno”.</em></li>
@@ -599,7 +615,8 @@ function openDetail(id, allGames){
   $('#detailInstr').innerHTML = gc.instructions;
 
   
-  // --- Enlace externo para juegos específicos ---
+  const _contentEl = document.querySelector('.modal .content'); if(_contentEl){ _contentEl.scrollTop = 0; }
+// --- Enlace externo para juegos específicos ---
   (function(){
     const LINKS = {
       madrecdotas: 'https://kevinpujol.github.io/Despedida-Uriga-Madrecdotas/',
