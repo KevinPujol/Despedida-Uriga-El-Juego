@@ -169,6 +169,7 @@
     list-style: none; cursor: pointer; display:flex; align-items:center; gap:.5rem;
   }
   details.exp > summary::marker{ content:""; } /* quita el marcador por defecto */
+  details.exp > summary::-webkit-details-marker{ display:none; } /* oculta triángulo nativo iPad/iOS */
   details.exp .chev{ transition: transform .2s; }
   details.exp[open] .chev{ transform: rotate(90deg); }
   details.exp .hint{ font-weight:400; font-size:.9em; color:#6b7280; margin-left:.25rem; }
@@ -306,7 +307,7 @@ const GAMES_CATALOG = [
     prep: `
       <ul>
         <li>1 tupper por persona (lo presenta quien lo trae).</li>
-        <li>Antifaces (para Uri y Olga), toallitas, papel y bolis.</li>
+        <li>Antifaces (para Uri y Olga), toallitas, libreta y bolis.</li>
       </ul>
     `,
     instructions: `
@@ -398,7 +399,7 @@ const GAMES_CATALOG = [
   },
   { id:'yincana', category:'UriGPT', title:'Yincana de fotos — Edición Multiagente', emoji:'📸',
     type:'versus',
-    prep: `Lista de retos/fotos, 1 móvil por equipo, <strong>tiempo máx.: 15 min</strong>.`,
+    prep: `Lista de retos/fotos, 1 móvil por equipo, <strong>tiempo máx.: 12 min</strong>.`,
     instructions: `
       <p>Cada foto representa un <strong>rol de Uri</strong> con <strong>condición obligatoria</strong>. +1 por foto válida dentro del tiempo. Juegan ambos equipos a la vez. <strong>Gana</strong> quien logre más fotos válidas (puede haber empate).</p>
       <details class="exp">
@@ -412,9 +413,9 @@ const GAMES_CATALOG = [
           <li><strong>Uri Cocinero</strong> 🧀 — <em>Todo el equipo forma/está dentro de un “horno”.</em></li>
           <li><strong>Uri Jardinero</strong> 🌱 — <em>1 jugador hace de potus; el resto lo trata con amor/reverencia (como hippies).</em></li>
           <li><strong>Uri Domótica</strong> 🕹️ — <em>Alguien hace de Uri actuando como objeto de domótica silencioso, pero visible en la foto.</em></li>
-          <li><strong>Uri Tarotista</strong> 🔮 — <em>El grupo representa distintas cartas del tarot del consultante.</em></li>
+          <li><strong>Uri Tarotista</strong> 🔮 — <em>El grupo representa distintas cartas del tarot que le tiran al consultante.</em></li>
           <li><strong>Uri Motorista</strong> 🏍️ — <em>Moto hecha con cuerpos humanos conectados; ≥1 pasajero subido.</em></li>
-          <li><strong>Uri Masajista</strong> 💆 — <em>Camilla humana (varios tumbados) + un masajista y un paciente.</em></li>
+          <li><strong>Uri Masajista</strong> 💆 — <em>Camilla/silla humana + un masajista y un paciente.</em></li>
           <li><strong>Uri Exterminador de Plagas</strong> 🪳 — <em>Varias cucarachas representadas y escena dramática.</em></li>
         </ul>
       </details>
