@@ -219,65 +219,206 @@ let db, scoresRef, gamesRef;
 
 // === Catálogo local de juegos ===
 const GAMES_CATALOG = [
-  { id:'madrecdotas', category:'Emancipación', title:'Las Madrecdotas', emoji:'⚖️',
+  { id:'madrecdotas', category:'Emancipación', title:'Las Madrecdotas', emoji:'👨🏻‍⚖️',
     type:'points',
-    prep:'Caja con anécdotas impresas y autor indicado.',
-    instructions:'El MC lee una anécdota. Uri y Olga dicen de quién es (sin hablar entre ellos). Asigna +1 local al que acierte.'
+    prep: `App web con todas las anécdotas.`,
+    instructions: `
+      <ol>
+        <li>El abogado lee una anécdota.</li>
+        <li>Uri y Olga dicen de quién creen que es (sin hablar).</li>
+        <li><strong>+1</strong> por acierto (ambos pueden sumar).</li>
+        <li>Repetir con todas. Gana quien sume más. El dueño puede añadir detalles.</li>
+      </ol>
+    `
   },
-  { id:'cordon', category:'Emancipación', title:'Cortar el cordón (doble Human Knot)', emoji:'🪢',
+  { id:'cordon', category:'Emancipación', title:'Cortar ataduras (doble Human Knot)', emoji:'🧶',
     type:'versus',
-    prep:'Formar 2 grupos del mismo tamaño. Manos a personas no adyacentes.',
-    instructions:'Sin soltarse, seguir a su guía para deshacer el nudo. Rapidez/claridad/diversión. Resultado: Uri / Olga / Empate.'
+    prep: `
+      <ul>
+        <li>2 equipos del mismo tamaño (mín. 6 por equipo).</li>
+        <li>Puede haber gente que no juegue.</li>
+      </ul>
+    `,
+    instructions: `
+      <ol>
+        <li>Cada persona da <strong>mano derecha</strong> a alguien <strong>enfrente</strong> y la <strong>izquierda</strong> a <strong>otra distinta</strong> enfrente (<em>nunca a adyacentes</em>).</li>
+        <li><strong>Uri y Olga</strong> no se atan: actúan como <strong>guías</strong>.</li>
+        <li><strong>Sin soltarse</strong>, seguir sus indicaciones para deshacer el nudo.</li>
+        <li>Se completa cuando todos dan la mano al de al lado formando <strong>un círculo</strong>.</li>
+        <li><strong>Gana</strong> el primer equipo que lo logra; si solo uno lo logra, gana. <strong>Empate</strong> si acaban con ≤30 s de diferencia.</li>
+      </ol>
+      <p><em>Resultado: Uri / Olga / Empate (suma al global).</em></p>
+    `
   },
-  { id:'microbiotas', category:'Introducción de Olga al clan', title:'Banco de Microbiotas', emoji:'⚗️',
+  { id:'microbiotas', category:'Introducción de Olga al clan', title:'Banco de Microbiotas', emoji:'🦠',
     type:'points',
-    prep:'Tuppers opacos numerados; antifaces; toallitas; pistola(s) de agua.',
-    instructions:'Con antifaz, tocan 30s el tupper. Describen y adivinan. +1 local a quien acierte.'
+    prep: `
+      <ul>
+        <li>1 tupper por persona (lo presenta quien lo trae).</li>
+        <li>Antifaces (para Uri y Olga), toallitas, papel y bolis.</li>
+      </ul>
+    `,
+    instructions: `
+      <ol>
+        <li>Con antifaz, cada uno <strong>toca 30 s</strong> el tupper presentado.</li>
+        <li>Escribir en secreto la apuesta.</li>
+        <li><strong>+1</strong> por acierto o mayor aproximación (ambos pueden sumar).</li>
+        <li>Repetir con todos. Gana quien sume más.</li>
+      </ol>
+    `
   },
-  { id:'tiktok', category:'Introducción de Olga al clan', title:'Try Not to Laugh — TikTok (QR)', emoji:'🕺',
+  { id:'tiktok', category:'Introducción de Olga al clan', title:'Intenta No Reír — Retos de Baile', emoji:'💃',
     type:'points',
-    prep:'Playlist/QR, móvil/altavoz, vasos, cubo/toalla. Zonas de performers y aguas.',
-    instructions:'Duelos: si alguien ríe/escupe primero, +1 local para el otro. Al final, mayor gana 1 global; empate +1 ambos.'
+    prep: `
+      <ul>
+        <li>Móvil con <strong>app web</strong> (coreografías) + altavoz.</li>
+        <li>Botella grande de agua y toalla.</li>
+      </ul>
+    `,
+    instructions: `
+      <ol>
+        <li>Un jugador del Equipo A se sienta con <strong>agua en la boca</strong> (defiende).</li>
+        <li>El Equipo B baila, <strong>sin saltárselos</strong>, los <strong>3 bailes consecutivos</strong> que da la app (no se eligen).</li>
+        <li>Si el defensor ríe/escupe → <strong>+1</strong> para quien baila y fin del turno.</li>
+        <li>Si no ríe tras 3 bailes → <strong>0 puntos</strong> y cambio de turno.</li>
+        <li>Alternar equipos y rotar defensores. <strong>Gana</strong> quien sume más puntos (puede haber empate).</li>
+      </ol>
+    `
   },
-  { id:'cata', category:'Introducción de Olga al clan', title:'Cata de bebidas (a ciegas)', emoji:'🥤',
+  { id:'cata', category:'Introducción de Olga al clan', title:'Cata de bebidas (a ciegas)', emoji:'🍷',
     type:'versus',
-    prep:'Caja opaca con pajitas; bebidas; pajitas nuevas por turno.',
-    instructions:'Eligen agujero y beben. Picante elimina. Se declara Uri/Olga/Empate y suma al global.'
+    prep: `
+      <ul>
+        <li>Caja opaca con <strong>5 orificios</strong>.</li>
+        <li><strong>5 botellas de agua</strong> (+ una grande para rellenar), salsa picante.</li>
+        <li>Pajitas <strong>nuevas</strong> en cada sorbo. El equipo rival repone y <strong>mueve solo las aguas</strong>.</li>
+      </ul>
+    `,
+    instructions: `
+      <ol>
+        <li>Juega un equipo completo por turnos (el otro prepara).</li>
+        <li>Inicio: <strong>4 aguas</strong> y <strong>1 picante</strong>.</li>
+        <li>Cada jugador elige un orificio y bebe:
+          <ul>
+            <li>Si es <strong>picante</strong> → jugador <strong>eliminado</strong> (las picantes <em>no se mueven</em>).</li>
+            <li>Si es <strong>agua</strong> → el rival <strong>mueve todas las aguas</strong> y <strong>sustituye esa por picante</strong>.</li>
+          </ul>
+        </li>
+        <li>Continuar hasta <strong>eliminar todas las aguas</strong> (queden 5 picantes). <strong>Se cronometra</strong>. Repite con el otro equipo.</li>
+        <li><strong>Victoria:</strong> si ambos completan, gana el más rápido; si ninguno, gana quien elimine más aguas. Empate si igualan.</li>
+      </ol>
+      <p><em>Resultado: Uri / Olga / Empate (suma al global).</em></p>
+    `
   },
   { id:'siameses', category:'Fusión en Uriga', title:'Mini‑retos a dos manos', emoji:'🤝',
     type:'ritual',
-    prep:'Cinta para unir; hoja A4; pack de envoltorio; globo+rotulador.',
-    instructions:'Tres tareas con una mano cada uno. Al final se les ata una mano. Sin puntos.'
+    prep: `
+      <ul>
+        <li><strong>Cuerda</strong> para atar sus manos juntas.</li>
+        <li>Hojas DIN A4 (varias), tijeras, papel de regalo, celo, objeto para envolver (p. ej., un libro).</li>
+        <li>10 globos, rotulador, cronómetro.</li>
+      </ul>
+    `,
+    instructions: `
+      <ol>
+        <li>Muñecas atadas entre sí (derecha de uno con izquierda del otro). Cada uno usa su <strong>mano libre</strong>.</li>
+        <li>Completar 3 miniretos, <strong>2 min</strong> cada uno:
+          <ol type="a">
+            <li>Avión de papel (A4) que vuele ≥5 m.</li>
+            <li>Envolver el objeto como regalo.</li>
+            <li>Hinchado y nudo de un globo + dibujarle una cara.</li>
+          </ol>
+        </li>
+      </ol>
+      <p><em>Ritual, sin puntos.</em></p>
+    `
   },
-  { id:'musical', category:'Fusión en Uriga', title:'Vivir en un musical — Escenas', emoji:'🎤',
+  { id:'musical', category:'Fusión en Uriga', title:'Recuerdos de Uriga: El Musical', emoji:'🎭',
     type:'ritual',
-    prep:'Lista de escenas; altavoz.',
-    instructions:'Impro musical 60–90s por escena. Sin puntos.'
+    prep: `App web con la lista de escenas y altavoces para música de fondo.`,
+    instructions: `
+      <ol>
+        <li>La app muestra una <strong>escena</strong> y un <strong>equipo</strong> (Uri u Olga).</li>
+        <li>Ese equipo la improvisa <strong>cantando y/o bailando</strong> durante <strong>2–3 min</strong>.</li>
+        <li>Pasa el otro equipo con la siguiente escena, y así hasta completar todas.</li>
+      </ol>
+      <p><em>Ritual, sin puntos.</em></p>
+    `
   },
-  { id:'yincana', category:'UriGPT', title:'Yincana de fotos — Multiagente Edition', emoji:'📸',
+  { id:'yincana', category:'UriGPT', title:'Yincana de fotos — Edición Multiagente', emoji:'📸',
     type:'versus',
-    prep:'1 móvil por equipo. Tiempo total: 12–15 min.',
-    instructions:'Roles de Uri + condición extra. Se decide Uri/Olga/Empate y suma al global.'
+    prep: `Lista de retos/fotos, 1 móvil por equipo, <strong>tiempo máx.: 15 min</strong>.`,
+    instructions: `
+      <p>Cada foto representa un <strong>rol de Uri</strong> con <strong>condición obligatoria</strong>. +1 por foto válida dentro del tiempo. Juegan ambos equipos a la vez. <strong>Gana</strong> quien logre más fotos válidas (puede haber empate).</p>
+      <details>
+        <summary><strong>Retos y condiciones</strong></summary>
+        <ul>
+          <li><strong>Uri Espiritista</strong> 🧹👻 — <em>≥1 persona no toca el suelo.</em></li>
+          <li><strong>Uri Cocinero</strong> 🧀 — <em>Todo el equipo forma/está dentro de un “horno”.</em></li>
+          <li><strong>Uri Jardinero</strong> 🌱 — <em>1 jugador hace de potus; el resto lo trata con amor/reverencia (como hippies).</em></li>
+          <li><strong>Uri Domótica</strong> 🕹️ — <em>Alguien hace de Uri actuando como objeto de domótica silencioso, pero visible en la foto.</em></li>
+          <li><strong>Uri Tarotista</strong> 🔮 — <em>El grupo representa distintas cartas del tarot del consultante.</em></li>
+          <li><strong>Uri Motorista</strong> 🏍️ — <em>Moto hecha con cuerpos humanos conectados; ≥1 pasajero subido.</em></li>
+          <li><strong>Uri Masajista</strong> 💆 — <em>Camilla humana (varios tumbados) + un masajista y un paciente.</em></li>
+          <li><strong>Uri Exterminador de Plagas</strong> 🪳 — <em>Varias cucarachas representadas y escena dramática.</em></li>
+        </ul>
+      </details>
+      <p><em>Resultado: Uri / Olga / Empate (suma al global).</em></p>
+    `
   },
-  { id:'recogida', category:'Vida en el Palacete', title:'Recogida a ciegas', emoji:'🙈',
+  { id:'recogida', category:'Vida en el Palacete', title:'Mudanza a ciegas', emoji:'🙈',
     type:'versus',
-    prep:'Campo delimitado, piezas, obstáculos seguros, 2 antifaces.',
-    instructions:'1 ciego por equipo guiado por voz. +1 por pieza en base. Resultado Uri/Olga/Empate suma global.'
+    prep: `Campo delimitado; 2 bases (una por equipo); piezas del color de cada equipo (tantas como jugadores, nº <strong>par</strong>); 2 antifaces; <strong>sin obstáculos</strong>.`,
+    instructions: `
+      <ol>
+        <li>Rondas <strong>simultáneas</strong>: cada equipo elige 1 jugador que irá a ciegas.</li>
+        <li>Poner el antifaz y darle <strong>2–3 vueltas</strong> para desorientarlo suavemente.</li>
+        <li><strong>Todo el equipo</strong> grita instrucciones (no solo una persona).</li>
+        <li>El ciego coge <strong>1 pieza de su color</strong> y vuelve a su base. Rotar jugador.</li>
+        <li><strong>Gana</strong> el equipo que reúne todas sus piezas primero. <strong>Empate</strong> si terminan con ≤5 s de diferencia.</li>
+      </ol>
+      <p><em>Resultado: Uri / Olga / Empate (suma al global).</em></p>
+    `
   },
-  { id:'nofoto', category:'Vida en el Palacete', title:'No salgas en la foto (cucarachas)', emoji:'🪳',
+  { id:'nofoto', category:'Vida en el Palacete', title:'No salgas en la foto — Versión cucarachas', emoji:'🪳',
     type:'versus',
-    prep:'Salón; móvil/cámara; sin flash/sonidos; antifaz.',
-    instructions:'Fotógrafo a ciegas 2 min. Revisión: quien salga nítido eliminado. Resultado suma global.'
+    prep: `Espacio delimitado (pequeño); 1 móvil con cámara por equipo; 1 antifaz.`,
+    instructions: `
+      <ol>
+        <li><strong>Turno A:</strong> un jugador del Equipo A se pone el antifaz y toma la cámara; el Equipo B hace de <strong>cucarachas</strong> (ruidos y movimiento).</li>
+        <li>Tiene <strong>1:30 min</strong> para sacar <strong>hasta 10 fotos</strong> (si hace más, solo cuentan las 10 primeras).</li>
+        <li><strong>Puntuación:</strong> contar las <strong>personas</strong> que aparezcan en esas fotos válidas.</li>
+        <li><strong>Turno B:</strong> invertir roles. Jugar <strong>2–3 rondas</strong>, cambiando de fotógrafo cada vez.</li>
+        <li><strong>Gana</strong> quien acumule más “cucarachas” fotografiadas (empate si igualan).</li>
+      </ol>
+      <p><em>Resultado: Uri / Olga / Empate (suma al global).</em></p>
+    `
   },
   { id:'riego', category:'Vida en el Palacete', title:'Riego Milagroso — Pasa el agua atrás', emoji:'💧',
     type:'versus',
-    prep:'Dos filas, botellas, recipientes y tupper final.',
-    instructions:'Cadena sin mirar. 2–3 min o hasta 500 ml. Uri/Olga/Empate suma global.'
+    prep: `Dos filas (mismo nº de personas), <strong>1–2 botellas por equipo</strong>, <strong>vasos del mismo tamaño</strong> para cada jugador (≈14) y <strong>recipiente final grande</strong>.`,
+    instructions: `
+      <ol>
+        <li>A la señal, el primero pasa <strong>agua por encima de la cabeza</strong> al de detrás, sin girarse ni mirar atrás.</li>
+        <li>Cada jugador <strong>rellena el vaso</strong> del compañero inmediatamente detrás, en cadena.</li>
+        <li>El último vierte su vaso en el <strong>recipiente final</strong> (este sí puede mirar).</li>
+        <li><strong>Tiempo máx.: 5 min</strong> o hasta llenar el recipiente.</li>
+        <li><strong>Gana</strong> el equipo que lo llene antes; si nadie lo llena, gana quien tenga más agua al final (empate si igualan).</li>
+      </ol>
+      <p><em>Resultado: Uri / Olga / Empate (suma al global).</em></p>
+    `
   },
   { id:'sprite', category:'Bonus Final', title:'Exorcismo de Maitreya', emoji:'🫧',
     type:'points',
-    prep:'Sprite fría en vasos iguales; toallas; 45–60s por ronda.',
-    instructions:'Duelos: si alguien eructa, +1 local al otro. Al final mayor gana 1 global; empate +1 ambos.'
+    prep: `2–3 botellas de Sprite muy frías, <strong>vasos iguales</strong> (uno por duelista), toallas y cronómetro.`,
+    instructions: `
+      <ol>
+        <li><strong>Duelos 1 vs 1</strong>: ambos beben su vaso y aguantan <strong>45–60 s</strong>.</li>
+        <li>Si uno <strong>eructa</strong>, el otro gana <strong>+1</strong> y fin del duelo (si eructan a la vez, 0).</li>
+        <li>Rotar parejas y repetir rondas.</li>
+        <li><strong>Final:</strong> quien tenga más puntos locales obtiene <strong>+1 global</strong>; si empatan, <strong>+1 global</strong> ambos.</li>
+      </ol>
+    `
   }
 ];
 
@@ -454,8 +595,8 @@ function openDetail(id, allGames){
   if(!gc) return;
   $('#detailCategory').textContent = gc.category;
   $('#detailTitle').textContent = gc.title;
-  $('#detailPrep').textContent = gc.prep;
-  $('#detailInstr').textContent = gc.instructions;
+  $('#detailPrep').innerHTML = gc.prep;
+  $('#detailInstr').innerHTML = gc.instructions;
 
   
   // --- Enlace externo para juegos específicos ---
