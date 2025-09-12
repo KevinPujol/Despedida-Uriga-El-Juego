@@ -28,7 +28,8 @@
 
   /* Header */
   header{display:flex;flex-direction:column;align-items:center;gap:12px;margin-top:4px;margin-bottom:10px}
-  .logo{height:72px; width:auto; display:block}
+  .logo{ height: clamp(72px, 12vw, 160px); width:auto; display:block; }
+  @media (max-width: 640px){.logo{ height: 72px; max-height: 72px; }}
   .scorebar{display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap}
   .pill{background:var(--pill); color:#fff; padding:10px 16px; border-radius:999px; font-weight:800; letter-spacing:.3px; display:inline-flex; align-items:center; gap:10px; box-shadow:var(--shadow)}
   .pill .name{opacity:1; color:#1a1a1a; font-size:13px; font-weight:700; letter-spacing:.08em}
@@ -276,10 +277,10 @@ const GAMES_CATALOG = [
     prep: `App web con todas las anécdotas.`,
     instructions: `
       <ol>
-        <li>El abogado lee una anécdota.</li>
-        <li>Uri y Olga dicen de quién creen que es (sin hablar).</li>
-        <li><strong>+1</strong> por acierto (ambos pueden sumar).</li>
-        <li>Repetir con todas. Gana quien sume más. El dueño puede añadir detalles.</li>
+        <li><strong>El abogado lee</strong> una anécdota.</li>
+        <li>Uri y Olga dicen de quién creen que es (<strong>sin hablar entre ellos</strong>).</li>
+        <li>Repetir hasta acabar todas las anecdotas.</li>
+        <li>El autor puede añadir detalles.</li>
       </ol>
     `
   },
@@ -299,7 +300,6 @@ const GAMES_CATALOG = [
         <li>Se completa cuando todos dan la mano al de al lado formando <strong>un círculo</strong>.</li>
         <li><strong>Gana</strong> el primer equipo que lo logra; si solo uno lo logra, gana. <strong>Empate</strong> si acaban con ≤30 s de diferencia.</li>
       </ol>
-      <p><em>Resultado: Uri / Olga / Empate (suma al global).</em></p>
     `
   },
   { id:'microbiotas', category:'Introducción de Olga al clan', title:'Banco de Microbiotas', emoji:'🦠',
@@ -359,7 +359,6 @@ const GAMES_CATALOG = [
         <li>Continuar hasta <strong>eliminar todas las aguas</strong> (queden 5 picantes). <strong>Se cronometra</strong>. Repite con el otro equipo.</li>
         <li><strong>Victoria:</strong> si ambos completan, gana el más rápido; si ninguno, gana quien elimine más aguas. Empate si igualan.</li>
       </ol>
-      <p><em>Resultado: Uri / Olga / Empate (suma al global).</em></p>
     `
   },
   { id:'siameses', category:'Fusión en Uriga', title:'Mini‑retos a dos manos', emoji:'🤝',
@@ -419,7 +418,6 @@ const GAMES_CATALOG = [
           <li><strong>Uri Exterminador de Plagas</strong> 🪳 — <em>Varias cucarachas representadas y escena dramática.</em></li>
         </ul>
       </details>
-      <p><em>Resultado: Uri / Olga / Empate (suma al global).</em></p>
     `
   },
   { id:'recogida', category:'Vida en el Palacete', title:'Mudanza a ciegas', emoji:'🙈',
@@ -433,7 +431,6 @@ const GAMES_CATALOG = [
         <li>El ciego coge <strong>1 pieza de su color</strong> y vuelve a su base. Rotar jugador.</li>
         <li><strong>Gana</strong> el equipo que reúne todas sus piezas primero. <strong>Empate</strong> si terminan con ≤5 s de diferencia.</li>
       </ol>
-      <p><em>Resultado: Uri / Olga / Empate (suma al global).</em></p>
     `
   },
   { id:'nofoto', category:'Vida en el Palacete', title:'No salgas en la foto — Versión cucarachas', emoji:'🪳',
@@ -447,7 +444,6 @@ const GAMES_CATALOG = [
         <li><strong>Turno B:</strong> invertir roles. Jugar <strong>2–3 rondas</strong>, cambiando de fotógrafo cada vez.</li>
         <li><strong>Gana</strong> quien acumule más “cucarachas” fotografiadas (empate si igualan).</li>
       </ol>
-      <p><em>Resultado: Uri / Olga / Empate (suma al global).</em></p>
     `
   },
   { id:'riego', category:'Vida en el Palacete', title:'Riego Milagroso — Pasa el agua atrás', emoji:'💧',
@@ -461,7 +457,6 @@ const GAMES_CATALOG = [
         <li><strong>Tiempo máx.: 5 min</strong> o hasta llenar el recipiente.</li>
         <li><strong>Gana</strong> el equipo que lo llene antes; si nadie lo llena, gana quien tenga más agua al final (empate si igualan).</li>
       </ol>
-      <p><em>Resultado: Uri / Olga / Empate (suma al global).</em></p>
     `
   },
   { id:'sprite', category:'Bonus Final', title:'Exorcismo de Maitreya', emoji:'🫧',
@@ -715,7 +710,7 @@ const state = (allGames && allGames[id]) || {done:false, result:null, local:{u:0
         <button class="btn primary" id="oPlus">+1</button>
       </div>
       <div class="controls stack" style="width:100%;max-width:420px">
-        <button class="btn ghost" id="resetLocal">Reset rondas</button>
+        <button class="btn ghost" id="resetLocal">Reset puntos</button>
         <button class="btn primary" id="finalize">Finalizar juego</button>
         <button class="btn danger" id="clearResult">Quitar resultado</button>
       </div>
